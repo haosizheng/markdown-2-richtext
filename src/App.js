@@ -361,7 +361,7 @@ const Toast = styled.div`
 
 // 添加回 defaultCSS 变量定义
 const defaultCSS = `
-/* 预览区域的样式 */
+/* Styles in Preview;预览区域的样式 */
 .preview-content {
   font-size: 16px;
   line-height: 1.75;
@@ -462,7 +462,30 @@ const App = () => {
     setTimeout(() => setToast(null), 3000);
   };
 
-  const [markdown, setMarkdown] = useState(`# Heading 1\n## Heading 2\n### Heading 3\n\nThis is a **bold text** example\n\nThis is an *italic text* example`);
+  const [markdown, setMarkdown] = useState(`# Welcome to FelxMark
+
+### How to Use
+
+1. Type Markdown in the left panel
+2. See the **rich-text** formatted result in the preview panel
+3. Customize styles in the **Format Editor**
+4. Copy the result with the "Copy All" button
+
+> Try pasting an image or formatting some text to see FlexMark in action!
+
+---
+
+# 
+
+### 使用方法
+
+1. 在左侧面板中输入 Markdown
+2. 在预览面板中查看**富文本格式化**结果
+3. 在格式编辑器中自定义样式
+4. 使用"Copy All"按钮一键复制富文本到支持富文本的编辑器中
+
+> 尝试粘贴图片或格式化一些文本，体验 FlexMark 的强大功能！
+`);
   const [css, setCSS] = useState(defaultCSS);
   const styleRef = useRef(null);
   const [editorMode, setEditorMode] = useState('basic'); // 'basic' or 'advanced'
