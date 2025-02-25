@@ -279,7 +279,7 @@ const ColorPickerInput = styled.div`
     left: 0;
     top: 0;
     width: 30px;
-    height: 100%;
+  height: 100%;
     border: none;
     background: none;
     cursor: pointer;
@@ -432,7 +432,7 @@ const HeaderCopyButton = styled.button`
   display: flex;
   align-items: center;
   gap: 5px;
-  
+
   &:hover {
     background-color: #40a9ff;
     transform: translateY(-1px);
@@ -491,10 +491,10 @@ const App = () => {
   const [editorMode, setEditorMode] = useState('basic'); // 'basic' or 'advanced'
   const [styleConfig, setStyleConfig] = useState({
     global: {
-      fontFamily: 'Arial',
-      letterSpacing: '0px',
-      lineHeight: '1.6',
-      paragraphSpacing: '16px',
+      fontFamily: "'Roboto', sans-serif",
+      letterSpacing: "0px",
+      lineHeight: "1.6", // 确保这是无单位的
+      paragraphSpacing: "16px"
     },
     h1: {
       color: '#000000',
@@ -531,7 +531,7 @@ const App = () => {
       numberColor: '#000',
     }
   });
-
+  
   const handleCopy = async () => {
     const previewContent = document.querySelector('.preview-content');
     if (previewContent) {
@@ -587,9 +587,17 @@ const App = () => {
   };
   // 更新样式
   const updateStyle = (newCSS) => {
+    // 确保 CSS 包含正确的行高设置
+    if (!newCSS.includes('line-height:')) {
+      const lineHeight = styleConfig.global.lineHeight || defaultValues.global.lineHeight;
+      newCSS = newCSS.replace('.preview-content {', 
+        `.preview-content {
+          line-height: ${lineHeight};`
+      );
+    }
     setCSS(newCSS);
     if (styleRef.current) {
-      styleRef.current.innerHTML = newCSS;
+      styleRef.current.textContent = newCSS;
     }
   };
 
@@ -607,13 +615,17 @@ const App = () => {
     // ... 其他默认值
   };
 
-  // 修改 generateCSS 函数，让列表元素继承段落样式
+  // 修改 generateCSS 函数，确保 blockquote 使用正确的样式
   const generateCSS = (config = styleConfig) => {
+    // 确保 lineHeight 是一个有效值
+    const lineHeight = config.global.lineHeight || defaultValues.global.lineHeight;
+    
     return `
+      /* Styles in Preview;预览区域的样式 */
       .preview-content {
         font-family: ${config.global.fontFamily || defaultValues.global.fontFamily};
         letter-spacing: ${config.global.letterSpacing || defaultValues.global.letterSpacing};
-        line-height: ${config.global.lineHeight || defaultValues.global.lineHeight};
+        line-height: ${lineHeight}; /* 不添加单位 */
         transition: all 0.3s ease;
       }
       
@@ -667,6 +679,7 @@ const App = () => {
         transition: all 0.3s ease;
       }
       
+      /* 确保 blockquote 使用 blockquote 样式设置，而不是继承段落样式 */
       .preview-content blockquote {
         color: ${config.blockquote.color || '#666666'};
         font-size: ${config.blockquote.fontSize || '16px'};
@@ -676,48 +689,53 @@ const App = () => {
         margin: 16px 0;
         transition: all 0.3s ease;
       }
+      
+      /* 确保 blockquote 内的段落也使用 blockquote 的颜色和字体大小 */
+      .preview-content blockquote p {
+        color: ${config.blockquote.color || '#666666'};
+        font-size: ${config.blockquote.fontSize || '16px'};
+      }
+      
+      .preview-content img {
+        display: block;
+        margin: 20px auto;
+        max-width: 100%;
+        height: auto;
+      }
     `;
   };
 
-  // 修改 handleStyleChange 函数
+  // 修改 handleStyleChange 函数，确保正确处理单位
   const handleStyleChange = (section, property, value) => {
-    const defaultValue = defaultValues[section]?.[property] || '';
-    let finalValue = value;
-
-    // 处理带单位的属性
-    if (['fontSize', 'letterSpacing', 'paragraphSpacing'].includes(property)) {
-      finalValue = `${value}px`;
-    }
-
-    // 特殊处理 line height
-    if (property === 'lineHeight') {
-      if (value === '') {
-        finalValue = '';
+    // 创建一个新的配置对象，避免直接修改原对象
+    const newConfig = JSON.parse(JSON.stringify(styleConfig));
+    
+    // 处理需要添加单位的属性
+    if (property === 'fontSize' || property === 'paragraphSpacing' || property === 'letterSpacing') {
+      // 确保值不包含单位，然后添加 px
+      const cleanValue = value.toString().replace(/px$/, '');
+      newConfig[section][property] = `${cleanValue}px`;
+    } 
+    // 特殊处理 lineHeight，确保它不添加单位
+    else if (property === 'lineHeight') {
+      // 确保值是一个有效的数字
+      const numValue = parseFloat(value);
+      if (!isNaN(numValue)) {
+        newConfig[section][property] = numValue.toString();
       } else {
-        const numericValue = parseFloat(value);
-        if (!isNaN(numericValue) && numericValue > 0) {
-          finalValue = value;
-        } else {
-          finalValue = defaultValue;
-        }
+        newConfig[section][property] = value;
       }
     }
-
-    setStyleConfig(prev => ({
-      ...prev,
-      [section]: {
-        ...prev[section],
-        [property]: finalValue
-      }
-    }));
-
-    const newCSS = generateCSS({
-      ...styleConfig,
-      [section]: {
-        ...styleConfig[section],
-        [property]: finalValue
-      }
-    });
+    // 其他属性直接赋值
+    else {
+      newConfig[section][property] = value;
+    }
+    
+    // 更新状态
+    setStyleConfig(newConfig);
+    
+    // 生成新的 CSS 并更新
+    const newCSS = generateCSS(newConfig);
     updateStyle(newCSS);
   };
 
@@ -926,9 +944,18 @@ const App = () => {
 
   // 修改事件监听，只监听输入框的事件
   useEffect(() => {
+  
     const textarea = textareaRef.current;
     
     if (!textarea) return;
+
+    // 检查初始 CSS 是否包含正确的行高
+    if (!css.includes(`line-height: ${styleConfig.global.lineHeight}`)) {
+      console.warn('Initial CSS does not contain correct line-height!');
+      // 强制更新初始 CSS
+      const initialCSS = generateCSS(styleConfig);
+      updateStyle(initialCSS);
+    }
     
     // 添加节流函数，限制事件的触发频率
     const throttle = (func, limit) => {
@@ -976,18 +1003,18 @@ const App = () => {
     <>
       <GlobalStyle />
       <Title>MarkDown To Rich Text Format</Title>
-      <AppContainer>
+    <AppContainer>
         <EditingContainer>
-          <EditorContainer>
+      <EditorContainer>
             <SectionTitle>Input (MARKDOWN Syntax)</SectionTitle>
-            <StyledTextarea
+        <StyledTextarea
               ref={textareaRef}
-              value={markdown}
-              onChange={(e) => setMarkdown(e.target.value)}
+          value={markdown}
+          onChange={(e) => setMarkdown(e.target.value)}
               onPaste={handlePaste}
               placeholder="Enter Markdown text..."
-            />
-          </EditorContainer>
+        />
+      </EditorContainer>
           
           <EditorContainer>
             <SectionTitle>
@@ -1062,7 +1089,7 @@ const App = () => {
                   {markdown}
                 </ReactMarkdown>
               </div>
-            </PreviewContainer>
+      </PreviewContainer>
           </EditorContainer>
 
           <EditorContainer>
@@ -1142,7 +1169,6 @@ const App = () => {
                       value={styleConfig.global.lineHeight}
                       onChange={(e) => handleStyleChange('global', 'lineHeight', e.target.value)}
                     />
-                    <UnitLabel>px</UnitLabel>
                   </StyleRow>
                   <StyleRow>
                     <StyleLabel>Paragraph Spacing</StyleLabel>
@@ -1341,7 +1367,7 @@ const App = () => {
             </Toast>
           )}
         </ToastContainer>
-      </AppContainer>
+    </AppContainer>
     </>
   );
 };
