@@ -143,81 +143,43 @@ const PreviewContainer = styled.div`
   background: #fff;
   color: #000;
   transition: all 0.3s ease;
+  position: relative;
 `;
 
-// 复制按钮容器
-const CopyButtonContainer = styled.div`
-  text-align: center;
-  margin-top: 10px;
-`;
-
-const Button = styled.button`
-  padding: 12px 24px;
-  margin: 15px 0;
-  background-color: #1890ff;
+// 创建一个新的按钮样式，专门用于右上角的复制按钮
+const CopyButton = styled.button`
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 8px 12px;
+  background-color: rgba(24, 144, 255, 0.8);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 4px;
   cursor: pointer;
+  font-size: 12px;
   font-weight: 500;
-  transition: all 0.3s ease;
-
+  transition: all 0.2s ease;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  
   &:hover {
-    background-color: #40a9ff;
+    background-color: rgba(24, 144, 255, 1);
     transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
+    box-shadow: 0 3px 8px rgba(24, 144, 255, 0.3);
   }
-`;
-
-const defaultCSS = `
-/* 预览区域的样式 */
-.preview-content {
-  font-size: 16px;
-  line-height: 1.75;
-  color: inherit;
-}
-
-.preview-content h1 {
-  font-size: 24px;
-  font-weight: bold;
-  margin: 20px 0;
-  color: inherit;
-}
-
-.preview-content h2 {
-  font-size: 20px;
-  font-weight: bold;
-  margin: 16px 0;
-  color: inherit;
-}
-
-.preview-content p {
-  margin: 16px 0;
-}
-
-.preview-content ul, .preview-content ol {
-  padding-left: 28px;
-  margin: 16px 0;
-}
-
-.preview-content li {
-  margin: 8px 0;
-}
-
-.preview-content strong {
-  font-weight: bold;
-}
-
-.preview-content em {
-  font-style: italic;
-}
-
-.preview-content blockquote {
-  border-left: 4px solid #ccc;
-  margin: 16px 0;
-  padding-left: 16px;
-  color: #666;
-}
+  
+  &:active {
+    transform: translateY(0);
+  }
+  
+  svg {
+    width: 14px;
+    height: 14px;
+  }
 `;
 
 // 添加模式切换开关样式
@@ -225,7 +187,8 @@ const ModeSwitch = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 15px;
+  font-size: 12px;
+  color: #666;
 `;
 
 // 基础模式的样式编辑器容器
@@ -396,11 +359,103 @@ const Toast = styled.div`
   }
 `;
 
+// 添加回 defaultCSS 变量定义
+const defaultCSS = `
+/* 预览区域的样式 */
+.preview-content {
+  font-size: 16px;
+  line-height: 1.75;
+  color: inherit;
+}
+
+.preview-content h1 {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 20px 0;
+  color: inherit;
+}
+
+.preview-content h2 {
+  font-size: 20px;
+  font-weight: bold;
+  margin: 16px 0;
+  color: inherit;
+}
+
+.preview-content p {
+  margin: 16px 0;
+}
+
+.preview-content ul, .preview-content ol {
+  padding-left: 28px;
+  margin: 16px 0;
+}
+
+.preview-content li {
+  margin: 8px 0;
+}
+
+.preview-content strong {
+  font-weight: bold;
+}
+
+.preview-content em {
+  font-style: italic;
+}
+
+.preview-content blockquote {
+  border-left: 4px solid #ccc;
+  margin: 16px 0;
+  padding-left: 16px;
+  color: #666;
+}
+
+.preview-content img {
+  display: block;
+  margin: 20px auto;
+  max-width: 100%;
+  height: auto;
+}
+`;
+
+// 创建一个新的按钮样式，用于标题栏中的复制按钮
+const HeaderCopyButton = styled.button`
+  padding: 6px 12px;
+  background-color: #1890ff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.1s ease;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  
+  &:hover {
+    background-color: #40a9ff;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+  
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+`;
+
 // App 组件
 const App = () => {
   const [toast, setToast] = useState(null);
   const [images, setImages] = useState([]); // 存储粘贴的图片
   const textareaRef = useRef(null);
+  const previewRef = useRef(null);
+  const isScrollingRef = useRef(false); // 防止无限循环
 
   const showToast = (message, type) => {
     setToast({ message, type });
@@ -676,6 +731,140 @@ const App = () => {
     }
   };
 
+  // 创建同步滚动函数
+  const syncScroll = (source, target) => {
+    if (isScrollingRef.current) return;
+    
+    try {
+      isScrollingRef.current = true;
+      
+      // 获取源元素的滚动信息
+      const sourceElement = source.current;
+      const targetElement = target.current;
+      
+      if (!sourceElement || !targetElement) return;
+      
+      // 计算源元素的相对滚动位置
+      const sourceScrollTop = sourceElement.scrollTop;
+      const sourceScrollHeight = sourceElement.scrollHeight;
+      const sourceClientHeight = sourceElement.clientHeight;
+      const sourceScrollRatio = sourceScrollTop / (sourceScrollHeight - sourceClientHeight);
+      
+      // 计算目标元素应该滚动到的位置
+      const targetScrollHeight = targetElement.scrollHeight;
+      const targetClientHeight = targetElement.clientHeight;
+      const targetScrollTop = sourceScrollRatio * (targetScrollHeight - targetClientHeight);
+      
+      // 设置目标元素的滚动位置
+      targetElement.scrollTop = targetScrollTop;
+      
+      // 添加更精确的内容同步（这是更复杂的部分）
+      if (source === textareaRef) {
+        // 从输入框到预览框的同步
+        const cursorPosition = getCursorPositionInTextarea(sourceElement);
+        const lineNumber = getLineNumberFromPosition(markdown, cursorPosition);
+        scrollPreviewToLine(lineNumber);
+      } else {
+        // 从预览框到输入框的同步（更复杂，需要反向映射）
+        const visibleLine = getVisibleLineInPreview(targetElement);
+        scrollTextareaToLine(visibleLine);
+      }
+    } finally {
+      // 防止无限循环
+      setTimeout(() => {
+        isScrollingRef.current = false;
+      }, 50);
+    }
+  };
+
+  // 辅助函数：获取文本框中光标位置对应的行号
+  const getCursorPositionInTextarea = (textarea) => {
+    return textarea.selectionStart;
+  };
+
+  const getLineNumberFromPosition = (text, position) => {
+    const textBeforeCursor = text.substring(0, position);
+    return textBeforeCursor.split('\n').length;
+  };
+
+  // 辅助函数：将预览窗口滚动到指定行
+  const scrollPreviewToLine = (lineNumber) => {
+    const previewElement = previewRef.current;
+    if (!previewElement) return;
+    
+    // 获取预览窗口中的所有段落、标题等元素
+    const elements = previewElement.querySelectorAll('p, h1, h2, h3, h4, h5, h6, blockquote, ul, ol');
+    
+    // 尝试找到对应行号的元素
+    // 这里的映射关系比较复杂，可能需要根据实际情况调整
+    if (elements.length >= lineNumber && lineNumber > 0) {
+      const targetElement = elements[lineNumber - 1];
+      if (targetElement) {
+        targetElement.scrollIntoView({ behavior: 'auto', block: 'start' });
+      }
+    }
+  };
+
+  // 辅助函数：获取预览窗口中可见的第一行
+  const getVisibleLineInPreview = (previewElement) => {
+    const elements = previewElement.querySelectorAll('p, h1, h2, h3, h4, h5, h6, blockquote, ul, ol');
+    const scrollTop = previewElement.scrollTop;
+    
+    for (let i = 0; i < elements.length; i++) {
+      const element = elements[i];
+      const elementTop = element.offsetTop - previewElement.offsetTop;
+      
+      if (elementTop >= scrollTop) {
+        return i + 1; // 行号从1开始
+      }
+    }
+    
+    return 1; // 默认返回第一行
+  };
+
+  // 辅助函数：将文本框滚动到指定行
+  const scrollTextareaToLine = (lineNumber) => {
+    const textareaElement = textareaRef.current;
+    if (!textareaElement) return;
+    
+    const lines = markdown.split('\n');
+    let position = 0;
+    
+    // 计算指定行之前的所有字符数
+    for (let i = 0; i < lineNumber - 1 && i < lines.length; i++) {
+      position += lines[i].length + 1; // +1 是换行符
+    }
+    
+    // 设置滚动位置
+    const lineHeight = parseInt(getComputedStyle(textareaElement).lineHeight);
+    const scrollPosition = (lineNumber - 1) * lineHeight;
+    textareaElement.scrollTop = scrollPosition;
+  };
+
+  // 添加滚动事件监听
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    const preview = previewRef.current;
+    
+    if (!textarea || !preview) return;
+    
+    const handleTextareaScroll = () => {
+      syncScroll(textareaRef, previewRef);
+    };
+    
+    const handlePreviewScroll = () => {
+      syncScroll(previewRef, textareaRef);
+    };
+    
+    textarea.addEventListener('scroll', handleTextareaScroll);
+    preview.addEventListener('scroll', handlePreviewScroll);
+    
+    return () => {
+      textarea.removeEventListener('scroll', handleTextareaScroll);
+      preview.removeEventListener('scroll', handlePreviewScroll);
+    };
+  }, [markdown]); // 当 markdown 内容变化时重新添加监听器
+
   useEffect(() => {
     // 动态加载Google Fonts
     const link = document.createElement('link');
@@ -708,8 +897,18 @@ const App = () => {
           <EditorContainer>
             <SectionTitle>
               Preview
+              <HeaderCopyButton onClick={handleCopy}>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                Copy All
+              </HeaderCopyButton>
             </SectionTitle>
-            <PreviewContainer>
+            <PreviewContainer 
+              ref={previewRef}
+              className="preview-content"
+            >
               <div className="preview-content">
                 <ReactMarkdown
                   components={{
@@ -769,26 +968,23 @@ const App = () => {
                 </ReactMarkdown>
               </div>
             </PreviewContainer>
-            <CopyButtonContainer>
-              <Button onClick={handleCopy}>
-                Copy All
-              </Button>
-            </CopyButtonContainer>
           </EditorContainer>
 
           <EditorContainer>
-            <SectionTitle>Format Editor</SectionTitle>
-            <ModeSwitch>
-              <Switch>
-                <input
-                  type="checkbox"
-                  checked={editorMode === 'advanced'}
-                  onChange={(e) => setEditorMode(e.target.checked ? 'advanced' : 'basic')}
-                />
-                <span></span>
-              </Switch>
-              Advanced Mode
-            </ModeSwitch>
+            <SectionTitle>
+              Format Editor
+              <ModeSwitch>
+                Advanced Mode
+                <Switch>
+                  <input
+                    type="checkbox"
+                    checked={editorMode === 'advanced'}
+                    onChange={(e) => setEditorMode(e.target.checked ? 'advanced' : 'basic')}
+                  />
+                  <span></span>
+                </Switch>
+              </ModeSwitch>
+            </SectionTitle>
             
             {editorMode === 'advanced' ? (
               <StyledTextarea
