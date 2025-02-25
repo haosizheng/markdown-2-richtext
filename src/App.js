@@ -731,139 +731,209 @@ const App = () => {
     }
   };
 
-  // 创建同步滚动函数
-  const syncScroll = (source, target) => {
+  // 1. 首先，我们需要识别 Markdown 中的关键点
+  const getMarkdownKeyPoints = (markdown) => {
+    const keyPoints = [];
+    const lines = markdown.split('\n');
+    
+    lines.forEach((line, index) => {
+      // 识别标题
+      if (line.match(/^#{1,6}\s/)) {
+        keyPoints.push({
+          type: 'heading',
+          lineIndex: index,
+          content: line.trim(),
+          level: line.match(/^(#{1,6})\s/)[1].length
+        });
+      }
+      // 识别列表开始
+      else if (line.match(/^(\*|-|\+|\d+\.)\s/)) {
+        keyPoints.push({
+          type: 'list',
+          lineIndex: index,
+          content: line.trim()
+        });
+      }
+      // 识别代码块开始
+      else if (line.match(/^```/)) {
+        keyPoints.push({
+          type: 'codeblock',
+          lineIndex: index,
+          content: line.trim()
+        });
+      }
+      // 识别引用块
+      else if (line.match(/^>/)) {
+        keyPoints.push({
+          type: 'blockquote',
+          lineIndex: index,
+          content: line.trim()
+        });
+      }
+      // 识别水平线
+      else if (line.match(/^(---|\*\*\*|___)/)) {
+        keyPoints.push({
+          type: 'hr',
+          lineIndex: index,
+          content: line.trim()
+        });
+      }
+      // 识别段落开始（空行后的第一行文本）
+      else if (index > 0 && lines[index - 1].trim() === '' && line.trim() !== '') {
+        keyPoints.push({
+          type: 'paragraph',
+          lineIndex: index,
+          content: line.trim()
+        });
+      }
+    });
+    
+    return keyPoints;
+  };
+
+  // 2. 在预览窗口中找到对应的 DOM 元素
+  const findPreviewElements = (keyPoints) => {
+    const previewElement = previewRef.current;
+    if (!previewElement) return [];
+    
+    const previewContent = previewElement.querySelector('.preview-content');
+    if (!previewContent) return [];
+    
+    return keyPoints.map(keyPoint => {
+      let selector;
+      
+      switch (keyPoint.type) {
+        case 'heading':
+          selector = `h${keyPoint.level}`;
+          break;
+        case 'list':
+          selector = keyPoint.content.match(/^\d+\./) ? 'ol > li' : 'ul > li';
+          break;
+        case 'codeblock':
+          selector = 'pre > code';
+          break;
+        case 'blockquote':
+          selector = 'blockquote';
+          break;
+        case 'hr':
+          selector = 'hr';
+          break;
+        case 'paragraph':
+          selector = 'p';
+          break;
+        default:
+          return null;
+      }
+      
+      // 查找所有匹配的元素
+      const elements = Array.from(previewContent.querySelectorAll(selector));
+      
+      // 尝试通过内容匹配找到正确的元素
+      // 这里使用简化的匹配逻辑，实际应用中可能需要更复杂的匹配算法
+      const matchedElement = elements.find(el => {
+        const elementText = el.textContent.trim();
+        const keyPointContent = keyPoint.content.replace(/^[#>*\-+\d.`\s]+/, '').trim();
+        return elementText.includes(keyPointContent) || keyPointContent.includes(elementText);
+      });
+      
+      return {
+        keyPoint,
+        element: matchedElement || elements[0] // 如果找不到匹配的，使用第一个元素
+      };
+    }).filter(item => item.element); // 过滤掉没有找到对应元素的项
+  };
+
+  // 修改同步滚动函数，只保留从输入框到预览框的同步
+  const syncScroll = () => {
     if (isScrollingRef.current) return;
     
     try {
       isScrollingRef.current = true;
       
-      // 获取源元素的滚动信息
-      const sourceElement = source.current;
-      const targetElement = target.current;
+      const textareaElement = textareaRef.current;
+      const previewElement = previewRef.current;
       
-      if (!sourceElement || !targetElement) return;
+      if (!textareaElement || !previewElement) return;
       
-      // 计算源元素的相对滚动位置
-      const sourceScrollTop = sourceElement.scrollTop;
-      const sourceScrollHeight = sourceElement.scrollHeight;
-      const sourceClientHeight = sourceElement.clientHeight;
-      const sourceScrollRatio = sourceScrollTop / (sourceScrollHeight - sourceClientHeight);
+      // 获取当前光标位置所在的行
+      const cursorPosition = textareaElement.selectionStart;
+      const text = textareaElement.value.substring(0, cursorPosition);
+      const currentLine = text.split('\n').length - 1;
       
-      // 计算目标元素应该滚动到的位置
-      const targetScrollHeight = targetElement.scrollHeight;
-      const targetClientHeight = targetElement.clientHeight;
-      const targetScrollTop = sourceScrollRatio * (targetScrollHeight - targetClientHeight);
+      // 获取关键点
+      const keyPoints = getMarkdownKeyPoints(markdown);
       
-      // 设置目标元素的滚动位置
-      targetElement.scrollTop = targetScrollTop;
+      // 找到最近的前一个关键点
+      let closestKeyPoint = null;
+      for (let i = keyPoints.length - 1; i >= 0; i--) {
+        if (keyPoints[i].lineIndex <= currentLine) {
+          closestKeyPoint = keyPoints[i];
+          break;
+        }
+      }
       
-      // 添加更精确的内容同步（这是更复杂的部分）
-      if (source === textareaRef) {
-        // 从输入框到预览框的同步
-        const cursorPosition = getCursorPositionInTextarea(sourceElement);
-        const lineNumber = getLineNumberFromPosition(markdown, cursorPosition);
-        scrollPreviewToLine(lineNumber);
-      } else {
-        // 从预览框到输入框的同步（更复杂，需要反向映射）
-        const visibleLine = getVisibleLineInPreview(targetElement);
-        scrollTextareaToLine(visibleLine);
+      if (closestKeyPoint) {
+        // 找到预览中对应的元素
+        const previewElements = findPreviewElements([closestKeyPoint]);
+        
+        if (previewElements.length > 0 && previewElements[0].element) {
+          // 计算元素在预览中的位置
+          const element = previewElements[0].element;
+          const elementTop = element.offsetTop;
+          
+          // 计算滚动位置，考虑一些偏移以提高可读性
+          const scrollTop = Math.max(0, elementTop - 50);
+          
+          // 平滑滚动到该位置
+          previewElement.scrollTo({
+            top: scrollTop,
+            behavior: 'smooth'
+          });
+        }
       }
     } finally {
       // 防止无限循环
       setTimeout(() => {
         isScrollingRef.current = false;
-      }, 50);
+      }, 100);
     }
   };
 
-  // 辅助函数：获取文本框中光标位置对应的行号
-  const getCursorPositionInTextarea = (textarea) => {
-    return textarea.selectionStart;
-  };
-
-  const getLineNumberFromPosition = (text, position) => {
-    const textBeforeCursor = text.substring(0, position);
-    return textBeforeCursor.split('\n').length;
-  };
-
-  // 辅助函数：将预览窗口滚动到指定行
-  const scrollPreviewToLine = (lineNumber) => {
-    const previewElement = previewRef.current;
-    if (!previewElement) return;
-    
-    // 获取预览窗口中的所有段落、标题等元素
-    const elements = previewElement.querySelectorAll('p, h1, h2, h3, h4, h5, h6, blockquote, ul, ol');
-    
-    // 尝试找到对应行号的元素
-    // 这里的映射关系比较复杂，可能需要根据实际情况调整
-    if (elements.length >= lineNumber && lineNumber > 0) {
-      const targetElement = elements[lineNumber - 1];
-      if (targetElement) {
-        targetElement.scrollIntoView({ behavior: 'auto', block: 'start' });
-      }
-    }
-  };
-
-  // 辅助函数：获取预览窗口中可见的第一行
-  const getVisibleLineInPreview = (previewElement) => {
-    const elements = previewElement.querySelectorAll('p, h1, h2, h3, h4, h5, h6, blockquote, ul, ol');
-    const scrollTop = previewElement.scrollTop;
-    
-    for (let i = 0; i < elements.length; i++) {
-      const element = elements[i];
-      const elementTop = element.offsetTop - previewElement.offsetTop;
-      
-      if (elementTop >= scrollTop) {
-        return i + 1; // 行号从1开始
-      }
-    }
-    
-    return 1; // 默认返回第一行
-  };
-
-  // 辅助函数：将文本框滚动到指定行
-  const scrollTextareaToLine = (lineNumber) => {
-    const textareaElement = textareaRef.current;
-    if (!textareaElement) return;
-    
-    const lines = markdown.split('\n');
-    let position = 0;
-    
-    // 计算指定行之前的所有字符数
-    for (let i = 0; i < lineNumber - 1 && i < lines.length; i++) {
-      position += lines[i].length + 1; // +1 是换行符
-    }
-    
-    // 设置滚动位置
-    const lineHeight = parseInt(getComputedStyle(textareaElement).lineHeight);
-    const scrollPosition = (lineNumber - 1) * lineHeight;
-    textareaElement.scrollTop = scrollPosition;
-  };
-
-  // 添加滚动事件监听
+  // 修改事件监听，只监听输入框的事件
   useEffect(() => {
     const textarea = textareaRef.current;
-    const preview = previewRef.current;
     
-    if (!textarea || !preview) return;
+    if (!textarea) return;
     
-    const handleTextareaScroll = () => {
-      syncScroll(textareaRef, previewRef);
+    // 添加节流函数，限制事件的触发频率
+    const throttle = (func, limit) => {
+      let inThrottle;
+      return function() {
+        const args = arguments;
+        const context = this;
+        if (!inThrottle) {
+          func.apply(context, args);
+          inThrottle = true;
+          setTimeout(() => inThrottle = false, limit);
+        }
+      };
     };
     
-    const handlePreviewScroll = () => {
-      syncScroll(previewRef, textareaRef);
-    };
+    const handleTextareaEvent = throttle(() => {
+      syncScroll();
+    }, 100);
     
-    textarea.addEventListener('scroll', handleTextareaScroll);
-    preview.addEventListener('scroll', handlePreviewScroll);
+    // 监听输入框的滚动、点击和按键事件
+    textarea.addEventListener('scroll', handleTextareaEvent);
+    textarea.addEventListener('click', handleTextareaEvent);
+    textarea.addEventListener('keyup', handleTextareaEvent);
     
     return () => {
-      textarea.removeEventListener('scroll', handleTextareaScroll);
-      preview.removeEventListener('scroll', handlePreviewScroll);
+      textarea.removeEventListener('scroll', handleTextareaEvent);
+      textarea.removeEventListener('click', handleTextareaEvent);
+      textarea.removeEventListener('keyup', handleTextareaEvent);
     };
-  }, [markdown]); // 当 markdown 内容变化时重新添加监听器
+  }, [markdown]);
 
   useEffect(() => {
     // 动态加载Google Fonts
