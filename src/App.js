@@ -418,13 +418,20 @@ const App = () => {
         tempDiv.contentEditable = true;
         tempDiv.style.position = 'absolute';
         tempDiv.style.left = '-9999px';
-        tempDiv.style.backgroundColor = 'transparent'; // 确保临时 div 背景透明
         
         // 复制原始节点，这样可以保留完整的样式和结构
         const clonedContent = previewContent.cloneNode(true);
         
-        // 确保预览容器的背景色为透明
-        clonedContent.style.backgroundColor = 'transparent';
+        // Debug: 打印克隆内容的 HTML
+        console.log('Cloned content HTML:', clonedContent.innerHTML);
+        
+        // Debug: 打印计算样式
+        const computedStyle = window.getComputedStyle(clonedContent);
+        console.log('Computed styles:', {
+          backgroundColor: computedStyle.backgroundColor,
+          background: computedStyle.background,
+          color: computedStyle.color
+        });
         
         // 将 h3、h4、h5、h6 转换为加粗文本
         clonedContent.querySelectorAll('h3, h4, h5, h6').forEach(header => {
@@ -436,6 +443,9 @@ const App = () => {
         tempDiv.appendChild(clonedContent);
         document.body.appendChild(tempDiv);
         
+        // Debug: 打印临时 div 的最终 HTML
+        console.log('Final tempDiv HTML:', tempDiv.innerHTML);
+        
         // 选择内容
         const selection = window.getSelection();
         const range = document.createRange();
@@ -446,6 +456,22 @@ const App = () => {
         // 执行复制命令
         document.execCommand('copy');
         
+        // Debug: 尝试从剪贴板读取内容（如果浏览器支持）
+        if (navigator.clipboard && navigator.clipboard.read) {
+          try {
+            const clipboardItems = await navigator.clipboard.read();
+            for (const item of clipboardItems) {
+              for (const type of item.types) {
+                const blob = await item.getType(type);
+                const text = await blob.text();
+                console.log(`Clipboard content (${type}):`, text);
+              }
+            }
+          } catch (e) {
+            console.log('Unable to read clipboard content:', e);
+          }
+        }
+        
         // 清理
         document.body.removeChild(tempDiv);
         selection.removeAllRanges();
@@ -453,7 +479,7 @@ const App = () => {
         alert('已复制富文本内容到剪贴板！');
       } catch (err) {
         alert('复制失败，请重试');
-        console.error(err);
+        console.error('Copy error:', err);
       }
     }
   };
