@@ -7,7 +7,75 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+/* 预览区域的基础样式 */
+.preview-content h1 {
+  font-size: 28px;
+  margin-bottom: 16px;
 }
+
+.preview-content h2 {
+  font-size: 24px;
+  margin-bottom: 14px;
+}
+
+.preview-content p {
+  margin-bottom: 12px;
+  line-height: 1.6;
+}
+
+.preview-content ul, .preview-content ol {
+  padding-left: 20px;
+  margin-bottom: 12px;
+}
+
+.preview-content li {
+  margin-bottom: 6px;
+}
+
+.preview-content code {
+  background-color: #f5f5f5;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+/* 预览区域的样式 */
+.preview-content {
+  font-size: 16px;
+  line-height: 1.75;
+  color: #333;
+}
+
+.preview-content h1 {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 20px 0;
+  color: #000;
+}
+
+.preview-content h2 {
+  font-size: 20px;
+  font-weight: bold;
+  margin: 16px 0;
+  color: #000;
+}
+
+.preview-content p {
+  margin: 16px 0;
+}
+
+.preview-content ul, .preview-content ol {
+  padding-left: 28px;
+  margin: 16px 0;
+}
+
+.preview-content li {
+  margin: 8px 0;
+}
+
+.preview-content strong {
+  font-weight: bold;
+}
+
+.preview-content em {
+  font-style: italic;
+} 
