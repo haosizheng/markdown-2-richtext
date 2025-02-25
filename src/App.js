@@ -234,12 +234,120 @@ const defaultCSS = `
 }
 `;
 
+// 添加模式切换开关样式
+const ModeSwitch = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 15px;
+`;
+
+// 基础模式的样式编辑器容器
+const BasicEditorContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 15px;
+  height: 100%;
+  overflow-y: auto;
+`;
+
+// 样式分类容器
+const StyleSection = styled.div`
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 15px;
+  background: #f9f9f9;
+`;
+
+// 样式标题
+const StyleTitle = styled.h3`
+  margin: 0 0 15px 0;
+  font-size: 16px;
+  color: #333;
+`;
+
+// 样式选项行
+const StyleRow = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  gap: 10px;
+`;
+
+// 样式标签
+const StyleLabel = styled.label`
+  min-width: 100px;
+  font-size: 14px;
+`;
+
+// 颜色选择器容器
+const ColorPicker = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+// 在现有的样式组件下添加新的组件
+const Select = styled.select`
+  padding: 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  width: 200px;
+`;
+
+const Input = styled.input`
+  padding: 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  width: 100px;
+
+  &:focus {
+    outline: none;
+    border-color: #1890ff;
+  }
+
+  &::placeholder {
+    color: #999;
+  }
+`;
+
 // App 组件
 const App = () => {
   const [markdown, setMarkdown] = useState(`# Heading 1\n## Heading 2\n### Heading 3\n\nThis is a **bold text** example\n\nThis is an *italic text* example`);
   const [css, setCSS] = useState(defaultCSS);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const styleRef = useRef(null);
+  const [editorMode, setEditorMode] = useState('basic'); // 'basic' or 'advanced'
+  const [styleConfig, setStyleConfig] = useState({
+    global: {
+      fontFamily: 'Arial',
+      letterSpacing: '0px',
+      lineHeight: '1.6',
+      paragraphSpacing: '16px',
+    },
+    h1: {
+      color: '#000000',
+      fontSize: '24px',
+    },
+    h2: {
+      color: '#000000',
+      fontSize: '20px',
+    },
+    h3: {
+      color: '#000000',
+      fontSize: '18px',
+    },
+    paragraph: {
+      color: '#000000',
+      fontSize: '16px',
+    },
+    blockquote: {
+      color: '#666666',
+      fontSize: '16px',
+    },
+    // ... 其他样式配置
+  });
   
   const handleCopy = async () => {
     const previewContent = document.querySelector('.preview-content');
@@ -294,6 +402,78 @@ const App = () => {
     }
   };
 
+  const defaultValues = {
+    global: {
+      fontFamily: 'Arial',
+      letterSpacing: '0px',
+      lineHeight: '1.6',
+      paragraphSpacing: '16px',
+    },
+    h1: {
+      color: '#000000',
+      fontSize: '24px',
+    },
+    // ... 其他默认值
+  };
+
+  // 生成 CSS
+  const generateCSS = (config = styleConfig) => {
+    return `
+      .preview-content {
+        font-family: ${config.global.fontFamily || defaultValues.global.fontFamily}, sans-serif;
+        letter-spacing: ${config.global.letterSpacing || defaultValues.global.letterSpacing};
+        line-height: ${config.global.lineHeight || defaultValues.global.lineHeight};
+      }
+      .preview-content h1,
+      .preview-content h2,
+      .preview-content h3,
+      .preview-content h4,
+      .preview-content h5,
+      .preview-content h6,
+      .preview-content p,
+      .preview-content ul,
+      .preview-content ol {
+        margin: ${config.global.paragraphSpacing || defaultValues.global.paragraphSpacing} 0;
+      }
+      .preview-content h1 {
+        color: ${config.h1.color || defaultValues.h1.color};
+        font-size: ${config.h1.fontSize || defaultValues.h1.fontSize};
+      }
+      // ... 其他样式
+    `;
+  };
+
+  // 处理样式更新
+  const handleStyleChange = (section, property, value) => {
+    const defaultValue = defaultValues[section]?.[property] || '';
+    let finalValue = value.trim() === '' ? defaultValue : value;
+
+    // 特殊处理 line height
+    if (property === 'lineHeight') {
+      const numericValue = parseFloat(value);
+      if (isNaN(numericValue) || numericValue <= 0) {
+        finalValue = defaultValue;
+      }
+    }
+
+    setStyleConfig(prev => ({
+      ...prev,
+      [section]: {
+        ...prev[section],
+        [property]: finalValue
+      }
+    }));
+
+    const newCSS = generateCSS({
+      ...styleConfig,
+      [section]: {
+        ...styleConfig[section],
+        [property]: finalValue
+      }
+    });
+    updateStyle(newCSS);
+  };
+
   return (
     <>
       <GlobalStyle />
@@ -339,11 +519,109 @@ const App = () => {
 
           <EditorContainer>
             <SectionTitle>Format Editor</SectionTitle>
-            <StyledTextarea
-              value={css}
-              onChange={(e) => updateStyle(e.target.value)}
-              placeholder="Edit CSS styles..."
-            />
+            <ModeSwitch>
+              <Switch>
+                <input
+                  type="checkbox"
+                  checked={editorMode === 'advanced'}
+                  onChange={(e) => setEditorMode(e.target.checked ? 'advanced' : 'basic')}
+                />
+                <span></span>
+              </Switch>
+              Advanced Mode
+            </ModeSwitch>
+            
+            {editorMode === 'advanced' ? (
+              <StyledTextarea
+                value={css}
+                onChange={(e) => updateStyle(e.target.value)}
+                placeholder="Edit CSS styles..."
+              />
+            ) : (
+              <BasicEditorContainer>
+                {/* 全局样式设置 */}
+                <StyleSection>
+                  <StyleTitle>Global Settings</StyleTitle>
+                  <StyleRow>
+                    <StyleLabel>Font Family</StyleLabel>
+                    <Select
+                      value={styleConfig.global.fontFamily}
+                      onChange={(e) => {
+                        handleStyleChange('global', 'fontFamily', e.target.value);
+                        // 强制更新
+                        const newCSS = generateCSS({
+                          ...styleConfig,
+                          global: {
+                            ...styleConfig.global,
+                            fontFamily: e.target.value
+                          }
+                        });
+                        updateStyle(newCSS);
+                      }}
+                    >
+                      <option value="Arial">Arial</option>
+                      <option value="Times New Roman">Times New Roman</option>
+                      <option value="微软雅黑">微软雅黑</option>
+                      {/* 添加更多字体选项 */}
+                    </Select>
+                  </StyleRow>
+                  <StyleRow>
+                    <StyleLabel>Letter Spacing</StyleLabel>
+                    <Input
+                      type="text"
+                      value={styleConfig.global.letterSpacing}
+                      onChange={(e) => handleStyleChange('global', 'letterSpacing', e.target.value)}
+                    />
+                  </StyleRow>
+                  <StyleRow>
+                    <StyleLabel>Line Height</StyleLabel>
+                    <Input
+                      type="text"
+                      value={styleConfig.global.lineHeight}
+                      onChange={(e) => handleStyleChange('global', 'lineHeight', e.target.value)}
+                    />
+                  </StyleRow>
+                  <StyleRow>
+                    <StyleLabel>Paragraph Spacing</StyleLabel>
+                    <Input
+                      type="text"
+                      value={styleConfig.global.paragraphSpacing}
+                      onChange={(e) => handleStyleChange('global', 'paragraphSpacing', e.target.value)}
+                    />
+                  </StyleRow>
+                </StyleSection>
+
+                {/* 一级标题设置 */}
+                <StyleSection>
+                  <StyleTitle>Heading 1</StyleTitle>
+                  <StyleRow>
+                    <StyleLabel>Color</StyleLabel>
+                    <ColorPicker>
+                      <Input
+                        type="color"
+                        value={styleConfig.h1.color}
+                        onChange={(e) => handleStyleChange('h1', 'color', e.target.value)}
+                      />
+                      <Input
+                        type="text"
+                        value={styleConfig.h1.color}
+                        onChange={(e) => handleStyleChange('h1', 'color', e.target.value)}
+                      />
+                    </ColorPicker>
+                  </StyleRow>
+                  <StyleRow>
+                    <StyleLabel>Font Size</StyleLabel>
+                    <Input
+                      type="text"
+                      value={styleConfig.h1.fontSize}
+                      onChange={(e) => handleStyleChange('h1', 'fontSize', e.target.value)}
+                    />
+                  </StyleRow>
+                </StyleSection>
+
+                {/* 其他标题和段落设置类似... */}
+              </BasicEditorContainer>
+            )}
             <style ref={styleRef}>{css}</style>
           </EditorContainer>
         </EditingContainer>
