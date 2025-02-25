@@ -48,13 +48,6 @@ const SectionTitle = styled.div`
   color: #2c3e50;
 `;
 
-// 暗黑模式开关容器
-const DarkModeSwitch = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
 // 开关按钮样式
 const Switch = styled.label`
   position: relative;
@@ -112,6 +105,9 @@ const EditorContainer = styled.div`
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   padding: 20px;
   box-sizing: border-box;
+  width: 100%;
+  min-width: 400px;
+  max-width: 500px;
 `;
 
 // 文本框样式优化
@@ -128,6 +124,8 @@ const StyledTextarea = styled.textarea`
   background: #fafafa;
   box-sizing: border-box;
   margin: 0;
+  min-height: 300px;
+  overflow: auto;
   
   &:focus {
     outline: none;
@@ -143,26 +141,14 @@ const PreviewContainer = styled.div`
   border: 1px solid #e0e0e0;
   border-radius: 6px;
   overflow-y: auto;
-  background: ${props => props.isDark ? '#1a1a1a' : '#fff'};
-  color: ${props => props.isDark ? '#fff' : '#000'};
-  transition: all 0.3s ease;
-
-  /* 移除通用选择器，改用具体的选择器 */
-  h1, h2, h3, h4, h5, h6, p, span, li, a, blockquote, em, strong {
-    color: ${props => props.isDark ? '#fff' : 'inherit'};
-  }
+  background: #fff;
+  color: #000;
 `;
 
 // 复制按钮容器
 const CopyButtonContainer = styled.div`
   text-align: center;
   margin-top: 10px;
-`;
-
-const CSSEditorContainer = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
 `;
 
 const Button = styled.button`
@@ -273,6 +259,14 @@ const StyleRow = styled.div`
   align-items: center;
   margin-bottom: 10px;
   gap: 10px;
+  position: relative;
+`;
+
+const UnitLabel = styled.span`
+  position: absolute;
+  right: 10px;
+  color: #999;
+  pointer-events: none;
 `;
 
 // 样式标签
@@ -301,6 +295,7 @@ const Input = styled.input`
   border: 1px solid #e0e0e0;
   border-radius: 4px;
   width: 100px;
+  position: relative;
 
   &:focus {
     outline: none;
@@ -310,13 +305,65 @@ const Input = styled.input`
   &::placeholder {
     color: #999;
   }
+
+  &[type="text"] {
+    &::-webkit-inner-spin-button,
+    &::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+  }
+`;
+
+// 修改 ColorPicker 组件
+const ColorPreview = styled.div`
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background-color: ${props => props.color};
+  border: 1px solid #e0e0e0;
+  margin-left: 8px;
+`;
+
+// 添加 Toast 组件
+const ToastContainer = styled.div`
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+`;
+
+const Toast = styled.div`
+  padding: 12px 24px;
+  border-radius: 4px;
+  background-color: ${props => props.type === 'success' ? '#52c41a' : '#ff4d4f'};
+  color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  animation: slideIn 0.3s ease-out;
+
+  @keyframes slideIn {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
 `;
 
 // App 组件
 const App = () => {
+  const [toast, setToast] = useState(null);
+
+  const showToast = (message, type) => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
   const [markdown, setMarkdown] = useState(`# Heading 1\n## Heading 2\n### Heading 3\n\nThis is a **bold text** example\n\nThis is an *italic text* example`);
   const [css, setCSS] = useState(defaultCSS);
-  const [isDarkMode, setIsDarkMode] = useState(false);
   const styleRef = useRef(null);
   const [editorMode, setEditorMode] = useState('basic'); // 'basic' or 'advanced'
   const [styleConfig, setStyleConfig] = useState({
@@ -345,10 +392,23 @@ const App = () => {
     blockquote: {
       color: '#666666',
       fontSize: '16px',
+      borderColor: '#ccc',
+      backgroundColor: '#f9f9f9'
     },
-    // ... 其他样式配置
+    code: {
+      backgroundColor: '#f5f5f5',
+      color: '#333',
+      fontSize: '14px',
+    },
+    link: {
+      color: '#1890ff',
+    },
+    list: {
+      bulletColor: '#000',
+      numberColor: '#000',
+    }
   });
-  
+
   const handleCopy = async () => {
     const previewContent = document.querySelector('.preview-content');
     if (previewContent) {
@@ -358,9 +418,13 @@ const App = () => {
         tempDiv.contentEditable = true;
         tempDiv.style.position = 'absolute';
         tempDiv.style.left = '-9999px';
+        tempDiv.style.backgroundColor = 'transparent'; // 确保临时 div 背景透明
         
         // 复制原始节点，这样可以保留完整的样式和结构
         const clonedContent = previewContent.cloneNode(true);
+        
+        // 确保预览容器的背景色为透明
+        clonedContent.style.backgroundColor = 'transparent';
         
         // 将 h3、h4、h5、h6 转换为加粗文本
         clonedContent.querySelectorAll('h3, h4, h5, h6').forEach(header => {
@@ -393,7 +457,6 @@ const App = () => {
       }
     }
   };
-
   // 更新样式
   const updateStyle = (newCSS) => {
     setCSS(newCSS);
@@ -416,7 +479,7 @@ const App = () => {
     // ... 其他默认值
   };
 
-  // 生成 CSS
+  // 修改 generateCSS 函数
   const generateCSS = (config = styleConfig) => {
     return `
       .preview-content {
@@ -424,35 +487,61 @@ const App = () => {
         letter-spacing: ${config.global.letterSpacing || defaultValues.global.letterSpacing};
         line-height: ${config.global.lineHeight || defaultValues.global.lineHeight};
       }
-      .preview-content h1,
-      .preview-content h2,
-      .preview-content h3,
-      .preview-content h4,
-      .preview-content h5,
-      .preview-content h6,
-      .preview-content p,
-      .preview-content ul,
-      .preview-content ol {
-        margin: ${config.global.paragraphSpacing || defaultValues.global.paragraphSpacing} 0;
-      }
       .preview-content h1 {
         color: ${config.h1.color || defaultValues.h1.color};
         font-size: ${config.h1.fontSize || defaultValues.h1.fontSize};
+      }
+      .preview-content h2 {
+        color: ${config.h2.color || defaultValues.h2.color};
+        font-size: ${config.h2.fontSize || defaultValues.h2.fontSize};
+      }
+      .preview-content h3 {
+        color: ${config.h3.color || defaultValues.h3.color};
+        font-size: ${config.h3.fontSize || defaultValues.h3.fontSize};
+      }
+      .preview-content p {
+        color: ${config.paragraph.color || defaultValues.paragraph.color};
+        font-size: ${config.paragraph.fontSize || defaultValues.paragraph.fontSize};
+      }
+      .preview-content blockquote {
+        color: ${config.blockquote.color || defaultValues.blockquote.color} !important;
+        font-size: ${config.blockquote.fontSize || defaultValues.blockquote.fontSize} !important;
+        border-left: 4px solid ${config.blockquote.borderColor || defaultValues.blockquote.borderColor};
+        background-color: ${config.blockquote.backgroundColor || defaultValues.blockquote.backgroundColor};
+        padding: 16px;
+        margin: 16px 0;
+        border-radius: 4px;
+      }
+      .preview-content blockquote p {
+        color: inherit !important;
+        font-size: inherit !important;
+        margin: 0;
       }
       // ... 其他样式
     `;
   };
 
-  // 处理样式更新
+  // 修改 handleStyleChange 函数
   const handleStyleChange = (section, property, value) => {
     const defaultValue = defaultValues[section]?.[property] || '';
-    let finalValue = value.trim() === '' ? defaultValue : value;
+    let finalValue = value;
+
+    // 处理带单位的属性
+    if (['fontSize', 'letterSpacing', 'paragraphSpacing'].includes(property)) {
+      finalValue = `${value}px`;
+    }
 
     // 特殊处理 line height
     if (property === 'lineHeight') {
-      const numericValue = parseFloat(value);
-      if (isNaN(numericValue) || numericValue <= 0) {
-        finalValue = defaultValue;
+      if (value === '') {
+        finalValue = '';
+      } else {
+        const numericValue = parseFloat(value);
+        if (!isNaN(numericValue) && numericValue > 0) {
+          finalValue = value;
+        } else {
+          finalValue = defaultValue;
+        }
       }
     }
 
@@ -492,23 +581,32 @@ const App = () => {
           <EditorContainer>
             <SectionTitle>
               Preview
-              <DarkModeSwitch>
-                Dark Mode
-                <Switch>
-                  <input 
-                    type="checkbox" 
-                    checked={isDarkMode}
-                    onChange={(e) => setIsDarkMode(e.target.checked)}
-                  />
-                  <span></span>
-                </Switch>
-              </DarkModeSwitch>
             </SectionTitle>
-            <PreviewContainer 
-              className="preview-content"
-              isDark={isDarkMode}
-            >
-              <ReactMarkdown>{markdown}</ReactMarkdown>
+            <PreviewContainer>
+              <div className="preview-content">
+                <ReactMarkdown
+                  components={{
+                    p: ({node, ...props}) => {
+                      const text = props.children[0];
+                      if (typeof text === 'string' && text.includes('\n')) {
+                        return (
+                          <p>
+                            {text.split('\n').map((line, i) => (
+                              <React.Fragment key={i}>
+                                {line}
+                                {i < text.split('\n').length - 1 && <br />}
+                              </React.Fragment>
+                            ))}
+                          </p>
+                        );
+                      }
+                      return <p {...props} />;
+                    }
+                  }}
+                >
+                  {markdown}
+                </ReactMarkdown>
+              </div>
             </PreviewContainer>
             <CopyButtonContainer>
               <Button onClick={handleCopy}>
@@ -569,9 +667,10 @@ const App = () => {
                     <StyleLabel>Letter Spacing</StyleLabel>
                     <Input
                       type="text"
-                      value={styleConfig.global.letterSpacing}
+                      value={styleConfig.global.letterSpacing.replace('px', '')}
                       onChange={(e) => handleStyleChange('global', 'letterSpacing', e.target.value)}
                     />
+                    <UnitLabel>px</UnitLabel>
                   </StyleRow>
                   <StyleRow>
                     <StyleLabel>Line Height</StyleLabel>
@@ -580,14 +679,16 @@ const App = () => {
                       value={styleConfig.global.lineHeight}
                       onChange={(e) => handleStyleChange('global', 'lineHeight', e.target.value)}
                     />
+                    <UnitLabel>px</UnitLabel>
                   </StyleRow>
                   <StyleRow>
                     <StyleLabel>Paragraph Spacing</StyleLabel>
                     <Input
                       type="text"
-                      value={styleConfig.global.paragraphSpacing}
+                      value={styleConfig.global.paragraphSpacing.replace('px', '')}
                       onChange={(e) => handleStyleChange('global', 'paragraphSpacing', e.target.value)}
                     />
+                    <UnitLabel>px</UnitLabel>
                   </StyleRow>
                 </StyleSection>
 
@@ -607,24 +708,183 @@ const App = () => {
                         value={styleConfig.h1.color}
                         onChange={(e) => handleStyleChange('h1', 'color', e.target.value)}
                       />
+                      <ColorPreview color={styleConfig.h1.color} />
                     </ColorPicker>
                   </StyleRow>
                   <StyleRow>
                     <StyleLabel>Font Size</StyleLabel>
                     <Input
                       type="text"
-                      value={styleConfig.h1.fontSize}
+                      value={styleConfig.h1.fontSize.replace('px', '')}
                       onChange={(e) => handleStyleChange('h1', 'fontSize', e.target.value)}
                     />
+                    <UnitLabel>px</UnitLabel>
                   </StyleRow>
                 </StyleSection>
 
-                {/* 其他标题和段落设置类似... */}
+                {/* 二级标题设置 */}
+                <StyleSection>
+                  <StyleTitle>Heading 2</StyleTitle>
+                  <StyleRow>
+                    <StyleLabel>Color</StyleLabel>
+                    <ColorPicker>
+                      <Input
+                        type="color"
+                        value={styleConfig.h2.color}
+                        onChange={(e) => handleStyleChange('h2', 'color', e.target.value)}
+                      />
+                      <Input
+                        type="text"
+                        value={styleConfig.h2.color}
+                        onChange={(e) => handleStyleChange('h2', 'color', e.target.value)}
+                      />
+                      <ColorPreview color={styleConfig.h2.color} />
+                    </ColorPicker>
+                  </StyleRow>
+                  <StyleRow>
+                    <StyleLabel>Font Size</StyleLabel>
+                    <Input
+                      type="text"
+                      value={styleConfig.h2.fontSize.replace('px', '')}
+                      onChange={(e) => handleStyleChange('h2', 'fontSize', e.target.value)}
+                    />
+                    <UnitLabel>px</UnitLabel>
+                  </StyleRow>
+                </StyleSection>
+
+                {/* 三级标题设置 */}
+                <StyleSection>
+                  <StyleTitle>Heading 3</StyleTitle>
+                  <StyleRow>
+                    <StyleLabel>Color</StyleLabel>
+                    <ColorPicker>
+                      <Input
+                        type="color"
+                        value={styleConfig.h3.color}
+                        onChange={(e) => handleStyleChange('h3', 'color', e.target.value)}
+                      />
+                      <Input
+                        type="text"
+                        value={styleConfig.h3.color}
+                        onChange={(e) => handleStyleChange('h3', 'color', e.target.value)}
+                      />
+                      <ColorPreview color={styleConfig.h3.color} />
+                    </ColorPicker>
+                  </StyleRow>
+                  <StyleRow>
+                    <StyleLabel>Font Size</StyleLabel>
+                    <Input
+                      type="text"
+                      value={styleConfig.h3.fontSize.replace('px', '')}
+                      onChange={(e) => handleStyleChange('h3', 'fontSize', e.target.value)}
+                    />
+                    <UnitLabel>px</UnitLabel>
+                  </StyleRow>
+                </StyleSection>
+
+                {/* 段落文字设置 */}
+                <StyleSection>
+                  <StyleTitle>Paragraph</StyleTitle>
+                  <StyleRow>
+                    <StyleLabel>Color</StyleLabel>
+                    <ColorPicker>
+                      <Input
+                        type="color"
+                        value={styleConfig.paragraph.color}
+                        onChange={(e) => handleStyleChange('paragraph', 'color', e.target.value)}
+                      />
+                      <Input
+                        type="text"
+                        value={styleConfig.paragraph.color}
+                        onChange={(e) => handleStyleChange('paragraph', 'color', e.target.value)}
+                      />
+                      <ColorPreview color={styleConfig.paragraph.color} />
+                    </ColorPicker>
+                  </StyleRow>
+                  <StyleRow>
+                    <StyleLabel>Font Size</StyleLabel>
+                    <Input
+                      type="text"
+                      value={styleConfig.paragraph.fontSize.replace('px', '')}
+                      onChange={(e) => handleStyleChange('paragraph', 'fontSize', e.target.value)}
+                    />
+                    <UnitLabel>px</UnitLabel>
+                  </StyleRow>
+                </StyleSection>
+
+                {/* 引用设置 */}
+                <StyleSection>
+                  <StyleTitle>Blockquote</StyleTitle>
+                  <StyleRow>
+                    <StyleLabel>Color</StyleLabel>
+                    <ColorPicker>
+                      <Input
+                        type="color"
+                        value={styleConfig.blockquote.color}
+                        onChange={(e) => handleStyleChange('blockquote', 'color', e.target.value)}
+                      />
+                      <Input
+                        type="text"
+                        value={styleConfig.blockquote.color}
+                        onChange={(e) => handleStyleChange('blockquote', 'color', e.target.value)}
+                      />
+                      <ColorPreview color={styleConfig.blockquote.color} />
+                    </ColorPicker>
+                  </StyleRow>
+                  <StyleRow>
+                    <StyleLabel>Font Size</StyleLabel>
+                    <Input
+                      type="text"
+                      value={styleConfig.blockquote.fontSize.replace('px', '')}
+                      onChange={(e) => handleStyleChange('blockquote', 'fontSize', e.target.value)}
+                    />
+                    <UnitLabel>px</UnitLabel>
+                  </StyleRow>
+                  <StyleRow>
+                    <StyleLabel>Border Color</StyleLabel>
+                    <ColorPicker>
+                      <Input
+                        type="color"
+                        value={styleConfig.blockquote.borderColor}
+                        onChange={(e) => handleStyleChange('blockquote', 'borderColor', e.target.value)}
+                      />
+                      <Input
+                        type="text"
+                        value={styleConfig.blockquote.borderColor}
+                        onChange={(e) => handleStyleChange('blockquote', 'borderColor', e.target.value)}
+                      />
+                      <ColorPreview color={styleConfig.blockquote.borderColor} />
+                    </ColorPicker>
+                  </StyleRow>
+                  <StyleRow>
+                    <StyleLabel>Background Color</StyleLabel>
+                    <ColorPicker>
+                      <Input
+                        type="color"
+                        value={styleConfig.blockquote.backgroundColor}
+                        onChange={(e) => handleStyleChange('blockquote', 'backgroundColor', e.target.value)}
+                      />
+                      <Input
+                        type="text"
+                        value={styleConfig.blockquote.backgroundColor}
+                        onChange={(e) => handleStyleChange('blockquote', 'backgroundColor', e.target.value)}
+                      />
+                      <ColorPreview color={styleConfig.blockquote.backgroundColor} />
+                    </ColorPicker>
+                  </StyleRow>
+                </StyleSection>
               </BasicEditorContainer>
             )}
             <style ref={styleRef}>{css}</style>
           </EditorContainer>
         </EditingContainer>
+        <ToastContainer>
+          {toast && (
+            <Toast type={toast.type}>
+              {toast.message}
+            </Toast>
+          )}
+        </ToastContainer>
       </AppContainer>
     </>
   );
