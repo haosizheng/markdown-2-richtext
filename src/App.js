@@ -142,6 +142,7 @@ const PreviewContainer = styled.div`
   overflow-y: auto;
   background: #fff;
   color: #000;
+  transition: all 0.3s ease;
 `;
 
 // 复制按钮容器
@@ -554,38 +555,59 @@ const App = () => {
         font-family: ${config.global.fontFamily || defaultValues.global.fontFamily}, sans-serif;
         letter-spacing: ${config.global.letterSpacing || defaultValues.global.letterSpacing};
         line-height: ${config.global.lineHeight || defaultValues.global.lineHeight};
+        transition: all 0.3s ease;
       }
+      
+      .preview-content * {
+        transition: all 0.3s ease;
+      }
+      
+      .preview-content h1,
+      .preview-content h2,
+      .preview-content h3,
+      .preview-content h4,
+      .preview-content h5,
+      .preview-content h6,
+      .preview-content p,
+      .preview-content ul,
+      .preview-content ol {
+        margin: ${config.global.paragraphSpacing || defaultValues.global.paragraphSpacing} 0;
+        transition: all 0.3s ease;
+      }
+      
       .preview-content h1 {
         color: ${config.h1.color || defaultValues.h1.color};
         font-size: ${config.h1.fontSize || defaultValues.h1.fontSize};
+        transition: all 0.3s ease;
       }
+      
       .preview-content h2 {
         color: ${config.h2.color || defaultValues.h2.color};
         font-size: ${config.h2.fontSize || defaultValues.h2.fontSize};
+        transition: all 0.3s ease;
       }
+      
       .preview-content h3 {
         color: ${config.h3.color || defaultValues.h3.color};
         font-size: ${config.h3.fontSize || defaultValues.h3.fontSize};
+        transition: all 0.3s ease;
       }
+      
       .preview-content p {
         color: ${config.paragraph.color || defaultValues.paragraph.color};
         font-size: ${config.paragraph.fontSize || defaultValues.paragraph.fontSize};
+        transition: all 0.3s ease;
       }
+      
       .preview-content blockquote {
-        color: ${config.blockquote.color || defaultValues.blockquote.color} !important;
-        font-size: ${config.blockquote.fontSize || defaultValues.blockquote.fontSize} !important;
-        border-left: 4px solid ${config.blockquote.borderColor || defaultValues.blockquote.borderColor};
-        background-color: ${config.blockquote.backgroundColor || defaultValues.blockquote.backgroundColor};
-        padding: 16px;
+        color: ${config.blockquote.color || '#666666'};
+        font-size: ${config.blockquote.fontSize || '16px'};
+        border-left: 4px solid ${config.blockquote.borderColor || '#ccc'};
+        background-color: ${config.blockquote.backgroundColor || 'transparent'};
+        padding-left: 16px;
         margin: 16px 0;
-        border-radius: 4px;
+        transition: all 0.3s ease;
       }
-      .preview-content blockquote p {
-        color: inherit !important;
-        font-size: inherit !important;
-        margin: 0;
-      }
-      // ... 其他样式
     `;
   };
 
