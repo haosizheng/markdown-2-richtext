@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import styled, { createGlobalStyle } from 'styled-components';
 
@@ -252,6 +252,13 @@ const StyleTitle = styled.h3`
   color: #333;
 `;
 
+// 样式标签 - 移到 StyleRow 前面
+const StyleLabel = styled.label`
+  min-width: 100px;
+  font-size: 14px;
+  flex-shrink: 0;
+`;
+
 // 样式选项行
 const StyleRow = styled.div`
   display: flex;
@@ -259,26 +266,70 @@ const StyleRow = styled.div`
   margin-bottom: 10px;
   gap: 10px;
   position: relative;
+  flex-wrap: wrap;
+  
+  @media (max-width: 1200px) {
+    flex-direction: column;
+    align-items: flex-start;
+    
+    ${StyleLabel} {
+      margin-bottom: 5px;
+    }
+  }
 `;
 
 const UnitLabel = styled.span`
-  position: absolute;
-  right: 10px;
+  display: inline-flex;
+  align-items: center;
+  height: 100%;
   color: #999;
-  pointer-events: none;
+  margin-left: 5px;
+  position: static;
 `;
 
-// 样式标签
-const StyleLabel = styled.label`
-  min-width: 100px;
-  font-size: 14px;
-`;
-
-// 颜色选择器容器
+// 替换现有的 ColorPicker 和 ColorPreview 组件
 const ColorPicker = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
+  width: 100%;
+`;
+
+// 新的组合式颜色选择器组件
+const ColorPickerInput = styled.div`
+  position: relative;
+  width: 100%;
+  
+  input[type="text"] {
+    width: 100%;
+    padding: 8px;
+    padding-left: 36px; // 为颜色预览留出空间
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 14px;
+  }
+  
+  input[type="color"] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 30px;
+    height: 100%;
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 0;
+    
+    &::-webkit-color-swatch-wrapper {
+      padding: 0;
+    }
+    
+    &::-webkit-color-swatch {
+      border: none;
+      border-radius: 4px 0 0 4px;
+    }
+  }
 `;
 
 // 在现有的样式组件下添加新的组件
@@ -293,12 +344,14 @@ const Input = styled.input`
   padding: 8px;
   border: 1px solid #e0e0e0;
   border-radius: 4px;
-  width: 100px;
-  position: relative;
+  width: 100%;
+  max-width: 120px;
+  box-sizing: border-box;
 
   &:focus {
     outline: none;
     border-color: #1890ff;
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
   }
 
   &::placeholder {
@@ -312,16 +365,6 @@ const Input = styled.input`
       margin: 0;
     }
   }
-`;
-
-// 修改 ColorPicker 组件
-const ColorPreview = styled.div`
-  width: 20px;
-  height: 20px;
-  border-radius: 4px;
-  background-color: ${props => props.color};
-  border: 1px solid #e0e0e0;
-  margin-left: 8px;
 `;
 
 // 添加 Toast 组件
@@ -588,6 +631,18 @@ const App = () => {
     updateStyle(newCSS);
   };
 
+  useEffect(() => {
+    // 动态加载Google Fonts
+    const link = document.createElement('link');
+    link.href = 'https://fonts.googleapis.com/css2?family=Lato&family=Ma+Shan+Zheng&family=Montserrat&family=Noto+Sans+SC&family=Noto+Serif+SC&family=Open+Sans&family=Playfair+Display&family=Roboto&family=ZCOOL+QingKe+HuangYou&family=ZCOOL+XiaoWei&display=swap';
+    link.rel = 'stylesheet';
+    document.head.appendChild(link);
+    
+    return () => {
+      document.head.removeChild(link);
+    };
+  }, []);
+
   return (
     <>
       <GlobalStyle />
@@ -682,20 +737,31 @@ const App = () => {
                         updateStyle(newCSS);
                       }}
                     >
-                      <option value="Arial">Arial</option>
-                      <option value="Times New Roman">Times New Roman</option>
-                      <option value="微软雅黑">微软雅黑</option>
-                      {/* 添加更多字体选项 */}
+                      {/* 英文字体 */}
+                      <option value="'Roboto', sans-serif">Roboto</option>
+                      <option value="'Open Sans', sans-serif">Open Sans</option>
+                      <option value="'Lato', sans-serif">Lato</option>
+                      <option value="'Montserrat', sans-serif">Montserrat</option>
+                      <option value="'Playfair Display', serif">Playfair Display</option>
+                      
+                      {/* 中文字体 */}
+                      <option value="'Noto Sans SC', sans-serif">思源黑体 (Noto Sans SC)</option>
+                      <option value="'Noto Serif SC', serif">思源宋体 (Noto Serif SC)</option>
+                      <option value="'ZCOOL XiaoWei', serif">站酷小薇 (ZCOOL XiaoWei)</option>
+                      <option value="'ZCOOL QingKe HuangYou', cursive">站酷庆科黄油体 (ZCOOL QingKe HuangYou)</option>
+                      <option value="'Ma Shan Zheng', cursive">马善政楷体 (Ma Shan Zheng)</option>
                     </Select>
                   </StyleRow>
                   <StyleRow>
                     <StyleLabel>Letter Spacing</StyleLabel>
-                    <Input
-                      type="text"
-                      value={styleConfig.global.letterSpacing.replace('px', '')}
-                      onChange={(e) => handleStyleChange('global', 'letterSpacing', e.target.value)}
-                    />
-                    <UnitLabel>px</UnitLabel>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <Input
+                        type="text"
+                        value={styleConfig.global.letterSpacing.replace('px', '')}
+                        onChange={(e) => handleStyleChange('global', 'letterSpacing', e.target.value)}
+                      />
+                      <UnitLabel>px</UnitLabel>
+                    </div>
                   </StyleRow>
                   <StyleRow>
                     <StyleLabel>Line Height</StyleLabel>
@@ -722,19 +788,18 @@ const App = () => {
                   <StyleTitle>Heading 1</StyleTitle>
                   <StyleRow>
                     <StyleLabel>Color</StyleLabel>
-                    <ColorPicker>
-                      <Input
+                    <ColorPickerInput>
+                      <input
                         type="color"
                         value={styleConfig.h1.color}
                         onChange={(e) => handleStyleChange('h1', 'color', e.target.value)}
                       />
-                      <Input
+                      <input
                         type="text"
                         value={styleConfig.h1.color}
                         onChange={(e) => handleStyleChange('h1', 'color', e.target.value)}
                       />
-                      <ColorPreview color={styleConfig.h1.color} />
-                    </ColorPicker>
+                    </ColorPickerInput>
                   </StyleRow>
                   <StyleRow>
                     <StyleLabel>Font Size</StyleLabel>
@@ -752,19 +817,18 @@ const App = () => {
                   <StyleTitle>Heading 2</StyleTitle>
                   <StyleRow>
                     <StyleLabel>Color</StyleLabel>
-                    <ColorPicker>
-                      <Input
+                    <ColorPickerInput>
+                      <input
                         type="color"
                         value={styleConfig.h2.color}
                         onChange={(e) => handleStyleChange('h2', 'color', e.target.value)}
                       />
-                      <Input
+                      <input
                         type="text"
                         value={styleConfig.h2.color}
                         onChange={(e) => handleStyleChange('h2', 'color', e.target.value)}
                       />
-                      <ColorPreview color={styleConfig.h2.color} />
-                    </ColorPicker>
+                    </ColorPickerInput>
                   </StyleRow>
                   <StyleRow>
                     <StyleLabel>Font Size</StyleLabel>
@@ -782,19 +846,18 @@ const App = () => {
                   <StyleTitle>Heading 3</StyleTitle>
                   <StyleRow>
                     <StyleLabel>Color</StyleLabel>
-                    <ColorPicker>
-                      <Input
+                    <ColorPickerInput>
+                      <input
                         type="color"
                         value={styleConfig.h3.color}
                         onChange={(e) => handleStyleChange('h3', 'color', e.target.value)}
                       />
-                      <Input
+                      <input
                         type="text"
                         value={styleConfig.h3.color}
                         onChange={(e) => handleStyleChange('h3', 'color', e.target.value)}
                       />
-                      <ColorPreview color={styleConfig.h3.color} />
-                    </ColorPicker>
+                    </ColorPickerInput>
                   </StyleRow>
                   <StyleRow>
                     <StyleLabel>Font Size</StyleLabel>
@@ -812,19 +875,18 @@ const App = () => {
                   <StyleTitle>Paragraph</StyleTitle>
                   <StyleRow>
                     <StyleLabel>Color</StyleLabel>
-                    <ColorPicker>
-                      <Input
+                    <ColorPickerInput>
+                      <input
                         type="color"
                         value={styleConfig.paragraph.color}
                         onChange={(e) => handleStyleChange('paragraph', 'color', e.target.value)}
                       />
-                      <Input
+                      <input
                         type="text"
                         value={styleConfig.paragraph.color}
                         onChange={(e) => handleStyleChange('paragraph', 'color', e.target.value)}
                       />
-                      <ColorPreview color={styleConfig.paragraph.color} />
-                    </ColorPicker>
+                    </ColorPickerInput>
                   </StyleRow>
                   <StyleRow>
                     <StyleLabel>Font Size</StyleLabel>
@@ -842,19 +904,18 @@ const App = () => {
                   <StyleTitle>Blockquote</StyleTitle>
                   <StyleRow>
                     <StyleLabel>Color</StyleLabel>
-                    <ColorPicker>
-                      <Input
+                    <ColorPickerInput>
+                      <input
                         type="color"
                         value={styleConfig.blockquote.color}
                         onChange={(e) => handleStyleChange('blockquote', 'color', e.target.value)}
                       />
-                      <Input
+                      <input
                         type="text"
                         value={styleConfig.blockquote.color}
                         onChange={(e) => handleStyleChange('blockquote', 'color', e.target.value)}
                       />
-                      <ColorPreview color={styleConfig.blockquote.color} />
-                    </ColorPicker>
+                    </ColorPickerInput>
                   </StyleRow>
                   <StyleRow>
                     <StyleLabel>Font Size</StyleLabel>
@@ -867,35 +928,33 @@ const App = () => {
                   </StyleRow>
                   <StyleRow>
                     <StyleLabel>Border Color</StyleLabel>
-                    <ColorPicker>
-                      <Input
+                    <ColorPickerInput>
+                      <input
                         type="color"
                         value={styleConfig.blockquote.borderColor}
                         onChange={(e) => handleStyleChange('blockquote', 'borderColor', e.target.value)}
                       />
-                      <Input
+                      <input
                         type="text"
                         value={styleConfig.blockquote.borderColor}
                         onChange={(e) => handleStyleChange('blockquote', 'borderColor', e.target.value)}
                       />
-                      <ColorPreview color={styleConfig.blockquote.borderColor} />
-                    </ColorPicker>
+                    </ColorPickerInput>
                   </StyleRow>
                   <StyleRow>
                     <StyleLabel>Background Color</StyleLabel>
-                    <ColorPicker>
-                      <Input
+                    <ColorPickerInput>
+                      <input
                         type="color"
                         value={styleConfig.blockquote.backgroundColor}
                         onChange={(e) => handleStyleChange('blockquote', 'backgroundColor', e.target.value)}
                       />
-                      <Input
+                      <input
                         type="text"
                         value={styleConfig.blockquote.backgroundColor}
                         onChange={(e) => handleStyleChange('blockquote', 'backgroundColor', e.target.value)}
                       />
-                      <ColorPreview color={styleConfig.blockquote.backgroundColor} />
-                    </ColorPicker>
+                    </ColorPickerInput>
                   </StyleRow>
                 </StyleSection>
               </BasicEditorContainer>
