@@ -399,6 +399,8 @@ const Toast = styled.div`
 // App 组件
 const App = () => {
   const [toast, setToast] = useState(null);
+  const [images, setImages] = useState([]); // 存储粘贴的图片
+  const textareaRef = useRef(null);
 
   const showToast = (message, type) => {
     setToast({ message, type });
@@ -465,17 +467,6 @@ const App = () => {
         // 复制原始节点，这样可以保留完整的样式和结构
         const clonedContent = previewContent.cloneNode(true);
         
-        // Debug: 打印克隆内容的 HTML
-        console.log('Cloned content HTML:', clonedContent.innerHTML);
-        
-        // Debug: 打印计算样式
-        const computedStyle = window.getComputedStyle(clonedContent);
-        console.log('Computed styles:', {
-          backgroundColor: computedStyle.backgroundColor,
-          background: computedStyle.background,
-          color: computedStyle.color
-        });
-        
         // 将 h3、h4、h5、h6 转换为加粗文本
         clonedContent.querySelectorAll('h3, h4, h5, h6').forEach(header => {
           const strong = document.createElement('strong');
@@ -483,11 +474,19 @@ const App = () => {
           header.parentNode.replaceChild(strong, header);
         });
         
+        // 确保图片使用完整的 URL
+        clonedContent.querySelectorAll('img').forEach(img => {
+          // 确保图片 src 是完整的
+          if (img.alt && img.alt.startsWith('img-')) {
+            const image = images.find(i => i.id === img.alt);
+            if (image) {
+              img.src = image.url;
+            }
+          }
+        });
+        
         tempDiv.appendChild(clonedContent);
         document.body.appendChild(tempDiv);
-        
-        // Debug: 打印临时 div 的最终 HTML
-        console.log('Final tempDiv HTML:', tempDiv.innerHTML);
         
         // 选择内容
         const selection = window.getSelection();
@@ -496,33 +495,15 @@ const App = () => {
         selection.removeAllRanges();
         selection.addRange(range);
         
-        // 执行复制命令
         document.execCommand('copy');
         
-        // Debug: 尝试从剪贴板读取内容（如果浏览器支持）
-        if (navigator.clipboard && navigator.clipboard.read) {
-          try {
-            const clipboardItems = await navigator.clipboard.read();
-            for (const item of clipboardItems) {
-              for (const type of item.types) {
-                const blob = await item.getType(type);
-                const text = await blob.text();
-                console.log(`Clipboard content (${type}):`, text);
-              }
-            }
-          } catch (e) {
-            console.log('Unable to read clipboard content:', e);
-          }
-        }
-        
-        // 清理
         document.body.removeChild(tempDiv);
         selection.removeAllRanges();
         
-        alert('已复制富文本内容到剪贴板！');
+        showToast('已复制富文本内容到剪贴板！', 'success');
       } catch (err) {
-        alert('复制失败，请重试');
         console.error('Copy error:', err);
+        showToast('复制失败，请重试', 'error');
       }
     }
   };
@@ -560,6 +541,13 @@ const App = () => {
       
       .preview-content * {
         transition: all 0.3s ease;
+      }
+      
+      .preview-content img {
+        display: block;
+        margin: 20px auto;
+        max-width: 100%;
+        height: auto;
       }
       
       .preview-content h1,
@@ -653,6 +641,41 @@ const App = () => {
     updateStyle(newCSS);
   };
 
+  // 修改 handlePaste 函数
+  const handlePaste = (e) => {
+    const items = e.clipboardData.items;
+    
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf('image') !== -1) {
+        e.preventDefault();
+        
+        const blob = items[i].getAsFile();
+        const reader = new FileReader();
+        
+        reader.onload = (event) => {
+          const imageUrl = event.target.result;
+          const imageId = `img-${Date.now()}`;
+          
+          // 将图片存储在状态中
+          setImages(prev => [...prev, { id: imageId, url: imageUrl }]);
+          
+          // 在光标位置插入标准 Markdown 图片语法
+          const cursorPosition = textareaRef.current.selectionStart;
+          const textBefore = markdown.substring(0, cursorPosition);
+          const textAfter = markdown.substring(cursorPosition);
+          
+          // 使用标准 Markdown 语法
+          const imageMarkdown = `\n![${imageId}](${imageId})\n`;
+          
+          setMarkdown(textBefore + imageMarkdown + textAfter);
+        };
+        
+        reader.readAsDataURL(blob);
+        break;
+      }
+    }
+  };
+
   useEffect(() => {
     // 动态加载Google Fonts
     const link = document.createElement('link');
@@ -674,8 +697,10 @@ const App = () => {
           <EditorContainer>
             <SectionTitle>Input (MARKDOWN Syntax)</SectionTitle>
             <StyledTextarea
+              ref={textareaRef}
               value={markdown}
               onChange={(e) => setMarkdown(e.target.value)}
+              onPaste={handlePaste}
               placeholder="Enter Markdown text..."
             />
           </EditorContainer>
@@ -692,7 +717,7 @@ const App = () => {
                       const text = props.children[0];
                       if (typeof text === 'string' && text.includes('\n')) {
                         return (
-                          <p>
+                          <p style={{ backgroundColor: 'transparent' }}>
                             {text.split('\n').map((line, i) => (
                               <React.Fragment key={i}>
                                 {line}
@@ -703,6 +728,40 @@ const App = () => {
                         );
                       }
                       return <p {...props} />;
+                    },
+                    img: ({node, ...props}) => {
+                      // 检查 src 是否是我们的图片 ID
+                      const src = props.src || '';
+                      
+                      if (src.startsWith('img-')) {
+                        // 查找对应的图片
+                        const image = images.find(img => img.id === src);
+                        if (image) {
+                          return (
+                            <img 
+                              src={image.url}
+                              alt={props.alt || ''}
+                              style={{
+                                display: 'block',
+                                margin: '20px auto',
+                                maxWidth: '100%'
+                              }}
+                            />
+                          );
+                        }
+                      }
+                      
+                      // 处理常规 Markdown 图片
+                      return (
+                        <img 
+                          {...props} 
+                          style={{
+                            display: 'block',
+                            margin: '20px auto',
+                            maxWidth: '100%'
+                          }}
+                        />
+                      );
                     }
                   }}
                 >
