@@ -584,11 +584,11 @@ const App = () => {
     // ... 其他默认值
   };
 
-  // 修改 generateCSS 函数
+  // 修改 generateCSS 函数，让列表元素继承段落样式
   const generateCSS = (config = styleConfig) => {
     return `
       .preview-content {
-        font-family: ${config.global.fontFamily || defaultValues.global.fontFamily}, sans-serif;
+        font-family: ${config.global.fontFamily || defaultValues.global.fontFamily};
         letter-spacing: ${config.global.letterSpacing || defaultValues.global.letterSpacing};
         line-height: ${config.global.lineHeight || defaultValues.global.lineHeight};
         transition: all 0.3s ease;
@@ -596,13 +596,6 @@ const App = () => {
       
       .preview-content * {
         transition: all 0.3s ease;
-      }
-      
-      .preview-content img {
-        display: block;
-        margin: 20px auto;
-        max-width: 100%;
-        height: auto;
       }
       
       .preview-content h1,
@@ -637,6 +630,15 @@ const App = () => {
       }
       
       .preview-content p {
+        color: ${config.paragraph.color || defaultValues.paragraph.color};
+        font-size: ${config.paragraph.fontSize || defaultValues.paragraph.fontSize};
+        transition: all 0.3s ease;
+      }
+      
+      /* 添加列表样式，继承段落样式 */
+      .preview-content ul,
+      .preview-content ol,
+      .preview-content li {
         color: ${config.paragraph.color || defaultValues.paragraph.color};
         font-size: ${config.paragraph.fontSize || defaultValues.paragraph.fontSize};
         transition: all 0.3s ease;
