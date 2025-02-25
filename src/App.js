@@ -5,7 +5,6 @@ import styled, { createGlobalStyle } from 'styled-components';
 // 修改全局样式的创建方式
 const GlobalStyle = createGlobalStyle`
   body {
-    background-color: #f5f5f5;
     margin: 0;
     padding: 0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
