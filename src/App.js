@@ -140,45 +140,18 @@ const PreviewContainer = styled.div`
   border: 1px solid #e0e0e0;
   border-radius: 6px;
   overflow-y: auto;
+  overflow-x: hidden;
   background: #fff;
   color: #000;
   transition: all 0.3s ease;
   position: relative;
-`;
+  min-width: 0;
+  box-sizing: border-box;
 
-// 创建一个新的按钮样式，专门用于右上角的复制按钮
-const CopyButton = styled.button`
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  padding: 8px 12px;
-  background-color: rgba(24, 144, 255, 0.8);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  
-  &:hover {
-    background-color: rgba(24, 144, 255, 1);
-    transform: translateY(-1px);
-    box-shadow: 0 3px 8px rgba(24, 144, 255, 0.3);
-  }
-  
-  &:active {
-    transform: translateY(0);
-  }
-  
-  svg {
-    width: 14px;
-    height: 14px;
+  .preview-content {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
   }
 `;
 
@@ -249,14 +222,6 @@ const UnitLabel = styled.span`
   color: #999;
   margin-left: 5px;
   position: static;
-`;
-
-// 替换现有的 ColorPicker 和 ColorPreview 组件
-const ColorPicker = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
 `;
 
 // 新的组合式颜色选择器组件
@@ -483,28 +448,13 @@ const styleTemplates = {
         letterSpacing: "0px",
         lineHeight: "1.6",
         paragraphSpacing: "16px",
-        contentPadding: "0px", // 两侧空白宽度
-        headingAlign: "left" // 标题对齐方式
+        headingAlign: "left"
       },
-      h1: {
-        color: '#000000',
-        fontSize: '24px',
-      },
-      h2: {
-        color: '#000000',
-        fontSize: '20px',
-      },
-      h3: {
-        color: '#000000',
-        fontSize: '18px',
-      },
-      paragraph: {
-        color: '#000000',
-        fontSize: '16px',
-      },
-      bold: {
-        color: '#000000',
-      },
+      h1: { color: '#000000', fontSize: '24px' },
+      h2: { color: '#000000', fontSize: '20px' },
+      h3: { color: '#000000', fontSize: '18px' },
+      paragraph: { color: '#000000', fontSize: '16px' },
+      bold: { color: '#000000' },
       blockquote: {
         color: '#666666',
         fontSize: '16px',
@@ -519,7 +469,122 @@ const styleTemplates = {
       }
     }
   },
-  // 其他模板将在后续添加
+  tech: {
+    name: "科技风",
+    styles: {
+      global: {
+        fontFamily: "'Roboto Mono', monospace",
+        letterSpacing: "0.5px",
+        lineHeight: "1.7",
+        paragraphSpacing: "20px",
+        headingAlign: "left"
+      },
+      h1: { color: '#2d333b', fontSize: '28px' },
+      h2: { color: '#2d333b', fontSize: '24px' },
+      h3: { color: '#2d333b', fontSize: '20px' },
+      paragraph: { color: '#444444', fontSize: '15px' },
+      bold: { color: '#1a73e8' },
+      blockquote: {
+        color: '#555555',
+        fontSize: '15px',
+        borderColor: '#1a73e8',
+        backgroundColor: '#f8f9fa'
+      },
+      code: {
+        color: '#24292e',
+        fontSize: '14px',
+        backgroundColor: '#f6f8fa',
+        fontFamily: "'Fira Code', monospace"
+      }
+    }
+  },
+  literary: {
+    name: "文艺风",
+    styles: {
+      global: {
+        fontFamily: "'Noto Serif SC', serif",
+        letterSpacing: "1px",
+        lineHeight: "1.8",
+        paragraphSpacing: "24px",
+        headingAlign: "center"
+      },
+      h1: { color: '#2c3e50', fontSize: '32px' },
+      h2: { color: '#34495e', fontSize: '26px' },
+      h3: { color: '#34495e', fontSize: '22px' },
+      paragraph: { color: '#2c3e50', fontSize: '16px' },
+      bold: { color: '#c0392b' },
+      blockquote: {
+        color: '#7f8c8d',
+        fontSize: '16px',
+        borderColor: '#e74c3c',
+        backgroundColor: '#fdf5f5'
+      },
+      code: {
+        color: '#7f8c8d',
+        fontSize: '15px',
+        backgroundColor: '#f9f9f9',
+        fontFamily: "'Monaco', monospace"
+      }
+    }
+  },
+  business: {
+    name: "商务风",
+    styles: {
+      global: {
+        fontFamily: "'Open Sans', sans-serif",
+        letterSpacing: "0.3px",
+        lineHeight: "1.6",
+        paragraphSpacing: "20px",
+        headingAlign: "left"
+      },
+      h1: { color: '#1e3a8a', fontSize: '28px' },
+      h2: { color: '#1e3a8a', fontSize: '24px' },
+      h3: { color: '#1e3a8a', fontSize: '20px' },
+      paragraph: { color: '#333333', fontSize: '15px' },
+      bold: { color: '#1e3a8a' },
+      blockquote: {
+        color: '#666666',
+        fontSize: '15px',
+        borderColor: '#1e3a8a',
+        backgroundColor: '#f8fafc'
+      },
+      code: {
+        color: '#475569',
+        fontSize: '14px',
+        backgroundColor: '#f1f5f9',
+        fontFamily: "'Consolas', monospace"
+      }
+    }
+  },
+  media: {
+    name: "新媒体",
+    styles: {
+      global: {
+        fontFamily: "'Noto Sans SC', sans-serif",
+        letterSpacing: "0.5px",
+        lineHeight: "1.8",
+        paragraphSpacing: "24px",
+        headingAlign: "left"
+      },
+      h1: { color: '#ff6b6b', fontSize: '30px' },
+      h2: { color: '#ff6b6b', fontSize: '26px' },
+      h3: { color: '#ff6b6b', fontSize: '22px' },
+      paragraph: { color: '#2d3436', fontSize: '16px' },
+      bold: { color: '#ff6b6b' },
+      blockquote: {
+        color: '#636e72',
+        fontSize: '16px',
+        borderColor: '#ff6b6b',
+        backgroundColor: '#fff8f8'
+      },
+      code: {
+        color: '#2d3436',
+        fontSize: '14px',
+        backgroundColor: '#f8f9fa',
+        fontFamily: "'Monaco', monospace"
+      }
+    }
+  }
 };
 
 // App 组件
@@ -567,8 +632,9 @@ const App = () => {
     global: {
       fontFamily: "'Roboto', sans-serif",
       letterSpacing: "0px",
-      lineHeight: "1.6", // 确保这是无单位的
-      paragraphSpacing: "16px"
+      lineHeight: "1.6",
+      paragraphSpacing: "16px",
+      headingAlign: "left"
     },
     h1: {
       color: '#000000',
@@ -586,6 +652,9 @@ const App = () => {
       color: '#000000',
       fontSize: '16px',
     },
+    bold: {
+      color: '#000000',
+    },
     blockquote: {
       color: '#666666',
       fontSize: '16px',
@@ -593,9 +662,10 @@ const App = () => {
       backgroundColor: '#f9f9f9'
     },
     code: {
-      backgroundColor: '#f5f5f5',
-      color: '#333',
+      color: '#333333',
       fontSize: '14px',
+      backgroundColor: '#f5f5f5',
+      fontFamily: "'Monaco', monospace"
     },
     link: {
       color: '#1890ff',
@@ -681,95 +751,156 @@ const App = () => {
       letterSpacing: '0px',
       lineHeight: '1.6',
       paragraphSpacing: '16px',
+      headingAlign: 'left'
     },
     h1: {
       color: '#000000',
       fontSize: '24px',
     },
-    // ... 其他默认值
+    h2: {
+      color: '#000000',
+      fontSize: '20px',
+    },
+    h3: {
+      color: '#000000',
+      fontSize: '18px',
+    },
+    paragraph: {
+      color: '#000000',
+      fontSize: '16px',
+    },
+    bold: {
+      color: '#000000',
+    },
+    blockquote: {
+      color: '#666666',
+      fontSize: '16px',
+      borderColor: '#ccc',
+      backgroundColor: '#f9f9f9'
+    },
+    code: {
+      color: '#333333',
+      fontSize: '14px',
+      backgroundColor: '#f5f5f5',
+      fontFamily: "'Monaco', monospace"
+    }
   };
 
-  // 修改 generateCSS 函数，确保 blockquote 使用正确的样式
+  // 修改 generateCSS 函数
   const generateCSS = (config = styleConfig) => {
-    // 确保 lineHeight 是一个有效值
     const lineHeight = config.global.lineHeight || defaultValues.global.lineHeight;
     
     return `
-      /* Styles in Preview;预览区域的样式 */
+      /* Global styles */
       .preview-content {
         font-family: ${config.global.fontFamily || defaultValues.global.fontFamily};
-        letter-spacing: ${config.global.letterSpacing || defaultValues.global.letterSpacing};
-        line-height: ${lineHeight}; /* 不添加单位 */
+        line-height: ${lineHeight};
+        box-sizing: border-box;
+        max-width: 100%;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
         transition: all 0.3s ease;
       }
-      
-      .preview-content * {
-        transition: all 0.3s ease;
-      }
-      
+
+      /* 统一设置文本样式 */
       .preview-content h1,
       .preview-content h2,
       .preview-content h3,
-      .preview-content h4,
-      .preview-content h5,
-      .preview-content h6,
       .preview-content p,
-      .preview-content ul,
-      .preview-content ol {
-        margin: ${config.global.paragraphSpacing || defaultValues.global.paragraphSpacing} 0;
-        transition: all 0.3s ease;
+      .preview-content li,
+      .preview-content blockquote {
+        letter-spacing: ${config.global.letterSpacing || defaultValues.global.letterSpacing};
       }
-      
+
+      /* 标题样式 */
       .preview-content h1 {
         color: ${config.h1.color || defaultValues.h1.color};
         font-size: ${config.h1.fontSize || defaultValues.h1.fontSize};
-        transition: all 0.3s ease;
+        margin: ${config.global.paragraphSpacing || defaultValues.global.paragraphSpacing} 0;
       }
-      
+
       .preview-content h2 {
         color: ${config.h2.color || defaultValues.h2.color};
         font-size: ${config.h2.fontSize || defaultValues.h2.fontSize};
-        transition: all 0.3s ease;
+        margin: ${config.global.paragraphSpacing || defaultValues.global.paragraphSpacing} 0;
       }
-      
+
       .preview-content h3 {
         color: ${config.h3.color || defaultValues.h3.color};
         font-size: ${config.h3.fontSize || defaultValues.h3.fontSize};
-        transition: all 0.3s ease;
+        margin: ${config.global.paragraphSpacing || defaultValues.global.paragraphSpacing} 0;
       }
-      
-      .preview-content p {
+
+      /* 段落和列表样式 */
+      .preview-content p,
+      .preview-content ul,
+      .preview-content ol {
         color: ${config.paragraph.color || defaultValues.paragraph.color};
         font-size: ${config.paragraph.fontSize || defaultValues.paragraph.fontSize};
-        transition: all 0.3s ease;
+        margin: ${config.global.paragraphSpacing || defaultValues.global.paragraphSpacing} 0;
       }
-      
-      /* 添加列表样式，继承段落样式 */
+
+      /* 列表特殊处理 */
       .preview-content ul,
-      .preview-content ol,
+      .preview-content ol {
+        padding-left: 2em;
+        box-sizing: border-box;
+      }
+
       .preview-content li {
         color: ${config.paragraph.color || defaultValues.paragraph.color};
         font-size: ${config.paragraph.fontSize || defaultValues.paragraph.fontSize};
-        transition: all 0.3s ease;
+        position: relative; /* 保持相对定位 */
       }
-      
-      /* 确保 blockquote 使用 blockquote 样式设置，而不是继承段落样式 */
+
+      /* 加粗文本样式 */
+      .preview-content strong {
+        color: ${config.bold.color || config.paragraph.color};
+        font-weight: bold;
+      }
+
+      /* 引用块样式 */
       .preview-content blockquote {
         color: ${config.blockquote.color || '#666666'};
         font-size: ${config.blockquote.fontSize || '16px'};
         border-left: 4px solid ${config.blockquote.borderColor || '#ccc'};
         background-color: ${config.blockquote.backgroundColor || 'transparent'};
-        padding-left: 16px;
-        margin: 16px 0;
-        transition: all 0.3s ease;
+        padding: 1em;
+        margin: ${config.global.paragraphSpacing || defaultValues.global.paragraphSpacing} 0;
+        padding-left: 20px;
       }
-      
-      /* 确保 blockquote 内的段落也使用 blockquote 的颜色和字体大小 */
+
+      /* 确保引用块内的段落继承引用块样式 */
       .preview-content blockquote p {
-        color: ${config.blockquote.color || '#666666'};
-        font-size: ${config.blockquote.fontSize || '16px'};
+        color: inherit;
+        font-size: inherit;
+        margin: 0;
       }
-      
+
+      /* 代码样式 */
+      .preview-content code,
+      .preview-content pre {
+        font-family: ${config.code.fontFamily || "'Monaco', monospace"};
+        color: ${config.code.color || '#333'};
+        font-size: ${config.code.fontSize || '14px'};
+        background-color: ${config.code.backgroundColor || '#f5f5f5'};
+        padding: 0.2em 0.4em;
+        border-radius: 3px;
+      }
+
+      .preview-content pre {
+        padding: 1em;
+        overflow-x: auto;
+      }
+
+      .preview-content pre code {
+        background: none;
+        padding: 0;
+        font-size: inherit;
+        color: inherit;
+      }
+
+      /* 图片样式 */
       .preview-content img {
         display: block;
         margin: 20px auto;
@@ -1018,7 +1149,6 @@ const App = () => {
 
   // 修改事件监听，只监听输入框的事件
   useEffect(() => {
-  
     const textarea = textareaRef.current;
     
     if (!textarea) return;
@@ -1026,12 +1156,10 @@ const App = () => {
     // 检查初始 CSS 是否包含正确的行高
     if (!css.includes(`line-height: ${styleConfig.global.lineHeight}`)) {
       console.warn('Initial CSS does not contain correct line-height!');
-      // 强制更新初始 CSS
       const initialCSS = generateCSS(styleConfig);
       updateStyle(initialCSS);
     }
     
-    // 添加节流函数，限制事件的触发频率
     const throttle = (func, limit) => {
       let inThrottle;
       return function() {
@@ -1049,7 +1177,6 @@ const App = () => {
       syncScroll();
     }, 100);
     
-    // 监听输入框的滚动、点击和按键事件
     textarea.addEventListener('scroll', handleTextareaEvent);
     textarea.addEventListener('click', handleTextareaEvent);
     textarea.addEventListener('keyup', handleTextareaEvent);
@@ -1059,7 +1186,7 @@ const App = () => {
       textarea.removeEventListener('click', handleTextareaEvent);
       textarea.removeEventListener('keyup', handleTextareaEvent);
     };
-  }, [markdown]);
+  }, [markdown, css, styleConfig, generateCSS, syncScroll, updateStyle]);
 
   useEffect(() => {
     // 动态加载Google Fonts
@@ -1149,7 +1276,7 @@ const App = () => {
                           return (
                             <img 
                               src={image.url}
-                              alt={props.alt || ''}
+                              alt={`Pasted image ${image.id}`}
                               style={{
                                 display: 'block',
                                 margin: '20px auto',
@@ -1204,7 +1331,7 @@ const App = () => {
               />
             ) : (
               <BasicEditorContainer>
-                {/* 添加模板选择器 */}
+                {/* 1. 模板选择 */}
                 <TemplateSelector>
                   <StyleTitle>Style Template</StyleTitle>
                   <TemplateSelect
@@ -1219,25 +1346,14 @@ const App = () => {
                   </TemplateSelect>
                 </TemplateSelector>
 
-                {/* 全局样式设置 */}
+                {/* 2. 全局设置 */}
                 <StyleSection>
                   <StyleTitle>Global Settings</StyleTitle>
                   <StyleRow>
                     <StyleLabel>Font Family</StyleLabel>
                     <Select
                       value={styleConfig.global.fontFamily}
-                      onChange={(e) => {
-                        handleStyleChange('global', 'fontFamily', e.target.value);
-                        // 强制更新
-                        const newCSS = generateCSS({
-                          ...styleConfig,
-                          global: {
-                            ...styleConfig.global,
-                            fontFamily: e.target.value
-                          }
-                        });
-                        updateStyle(newCSS);
-                      }}
+                      onChange={(e) => handleStyleChange('global', 'fontFamily', e.target.value)}
                     >
                       {/* 英文字体 */}
                       <option value="'Roboto', sans-serif">Roboto</option>
@@ -1270,21 +1386,35 @@ const App = () => {
                     <Input
                       type="text"
                       value={styleConfig.global.lineHeight}
-                      onChange={(e) => handleStyleChange('global', 'lineHeight', e.target.value)}
+                      onChange={(e) => {
+                        // 允许输入数字、小数点和退格键
+                        if (/^\d*\.?\d*$/.test(e.target.value) || e.target.value === '') {
+                          handleStyleChange('global', 'lineHeight', e.target.value);
+                        }
+                      }}
+                      onBlur={(e) => {
+                        // 在失去焦点时确保值是有效的
+                        const value = parseFloat(e.target.value);
+                        if (isNaN(value) || value <= 0) {
+                          handleStyleChange('global', 'lineHeight', defaultValues.global.lineHeight);
+                        }
+                      }}
                     />
                   </StyleRow>
                   <StyleRow>
                     <StyleLabel>Paragraph Spacing</StyleLabel>
-                    <Input
-                      type="text"
-                      value={styleConfig.global.paragraphSpacing.replace('px', '')}
-                      onChange={(e) => handleStyleChange('global', 'paragraphSpacing', e.target.value)}
-                    />
-                    <UnitLabel>px</UnitLabel>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <Input
+                        type="text"
+                        value={styleConfig.global.paragraphSpacing.replace('px', '')}
+                        onChange={(e) => handleStyleChange('global', 'paragraphSpacing', e.target.value)}
+                      />
+                      <UnitLabel>px</UnitLabel>
+                    </div>
                   </StyleRow>
                 </StyleSection>
 
-                {/* 一级标题设置 */}
+                {/* 3. 标题设置（H1-H3） */}
                 <StyleSection>
                   <StyleTitle>Heading 1</StyleTitle>
                   <StyleRow>
@@ -1304,16 +1434,17 @@ const App = () => {
                   </StyleRow>
                   <StyleRow>
                     <StyleLabel>Font Size</StyleLabel>
-                    <Input
-                      type="text"
-                      value={styleConfig.h1.fontSize.replace('px', '')}
-                      onChange={(e) => handleStyleChange('h1', 'fontSize', e.target.value)}
-                    />
-                    <UnitLabel>px</UnitLabel>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <Input
+                        type="text"
+                        value={styleConfig.h1.fontSize.replace('px', '')}
+                        onChange={(e) => handleStyleChange('h1', 'fontSize', e.target.value)}
+                      />
+                      <UnitLabel>px</UnitLabel>
+                    </div>
                   </StyleRow>
                 </StyleSection>
 
-                {/* 二级标题设置 */}
                 <StyleSection>
                   <StyleTitle>Heading 2</StyleTitle>
                   <StyleRow>
@@ -1333,16 +1464,17 @@ const App = () => {
                   </StyleRow>
                   <StyleRow>
                     <StyleLabel>Font Size</StyleLabel>
-                    <Input
-                      type="text"
-                      value={styleConfig.h2.fontSize.replace('px', '')}
-                      onChange={(e) => handleStyleChange('h2', 'fontSize', e.target.value)}
-                    />
-                    <UnitLabel>px</UnitLabel>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <Input
+                        type="text"
+                        value={styleConfig.h2.fontSize.replace('px', '')}
+                        onChange={(e) => handleStyleChange('h2', 'fontSize', e.target.value)}
+                      />
+                      <UnitLabel>px</UnitLabel>
+                    </div>
                   </StyleRow>
                 </StyleSection>
 
-                {/* 三级标题设置 */}
                 <StyleSection>
                   <StyleTitle>Heading 3</StyleTitle>
                   <StyleRow>
@@ -1362,16 +1494,18 @@ const App = () => {
                   </StyleRow>
                   <StyleRow>
                     <StyleLabel>Font Size</StyleLabel>
-                    <Input
-                      type="text"
-                      value={styleConfig.h3.fontSize.replace('px', '')}
-                      onChange={(e) => handleStyleChange('h3', 'fontSize', e.target.value)}
-                    />
-                    <UnitLabel>px</UnitLabel>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <Input
+                        type="text"
+                        value={styleConfig.h3.fontSize.replace('px', '')}
+                        onChange={(e) => handleStyleChange('h3', 'fontSize', e.target.value)}
+                      />
+                      <UnitLabel>px</UnitLabel>
+                    </div>
                   </StyleRow>
                 </StyleSection>
 
-                {/* 段落文字设置 */}
+                {/* 4. 段落设置 */}
                 <StyleSection>
                   <StyleTitle>Paragraph</StyleTitle>
                   <StyleRow>
@@ -1391,16 +1525,38 @@ const App = () => {
                   </StyleRow>
                   <StyleRow>
                     <StyleLabel>Font Size</StyleLabel>
-                    <Input
-                      type="text"
-                      value={styleConfig.paragraph.fontSize.replace('px', '')}
-                      onChange={(e) => handleStyleChange('paragraph', 'fontSize', e.target.value)}
-                    />
-                    <UnitLabel>px</UnitLabel>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <Input
+                        type="text"
+                        value={styleConfig.paragraph.fontSize.replace('px', '')}
+                        onChange={(e) => handleStyleChange('paragraph', 'fontSize', e.target.value)}
+                      />
+                      <UnitLabel>px</UnitLabel>
+                    </div>
                   </StyleRow>
                 </StyleSection>
 
-                {/* 引用设置 */}
+                {/* 5. 加粗文本设置 */}
+                <StyleSection>
+                  <StyleTitle>Bold Text</StyleTitle>
+                  <StyleRow>
+                    <StyleLabel>Color</StyleLabel>
+                    <ColorPickerInput>
+                      <input
+                        type="color"
+                        value={styleConfig.bold.color}
+                        onChange={(e) => handleStyleChange('bold', 'color', e.target.value)}
+                      />
+                      <input
+                        type="text"
+                        value={styleConfig.bold.color}
+                        onChange={(e) => handleStyleChange('bold', 'color', e.target.value)}
+                      />
+                    </ColorPickerInput>
+                  </StyleRow>
+                </StyleSection>
+
+                {/* 6. 引用块设置 */}
                 <StyleSection>
                   <StyleTitle>Blockquote</StyleTitle>
                   <StyleRow>
@@ -1420,12 +1576,14 @@ const App = () => {
                   </StyleRow>
                   <StyleRow>
                     <StyleLabel>Font Size</StyleLabel>
-                    <Input
-                      type="text"
-                      value={styleConfig.blockquote.fontSize.replace('px', '')}
-                      onChange={(e) => handleStyleChange('blockquote', 'fontSize', e.target.value)}
-                    />
-                    <UnitLabel>px</UnitLabel>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <Input
+                        type="text"
+                        value={styleConfig.blockquote.fontSize.replace('px', '')}
+                        onChange={(e) => handleStyleChange('blockquote', 'fontSize', e.target.value)}
+                      />
+                      <UnitLabel>px</UnitLabel>
+                    </div>
                   </StyleRow>
                   <StyleRow>
                     <StyleLabel>Border Color</StyleLabel>
@@ -1443,7 +1601,7 @@ const App = () => {
                     </ColorPickerInput>
                   </StyleRow>
                   <StyleRow>
-                    <StyleLabel>Background Color</StyleLabel>
+                    <StyleLabel>Background</StyleLabel>
                     <ColorPickerInput>
                       <input
                         type="color"
@@ -1454,6 +1612,64 @@ const App = () => {
                         type="text"
                         value={styleConfig.blockquote.backgroundColor}
                         onChange={(e) => handleStyleChange('blockquote', 'backgroundColor', e.target.value)}
+                      />
+                    </ColorPickerInput>
+                  </StyleRow>
+                </StyleSection>
+
+                {/* 7. 代码块设置 */}
+                <StyleSection>
+                  <StyleTitle>Code</StyleTitle>
+                  <StyleRow>
+                    <StyleLabel>Font Family</StyleLabel>
+                    <Select
+                      value={styleConfig.code.fontFamily}
+                      onChange={(e) => handleStyleChange('code', 'fontFamily', e.target.value)}
+                    >
+                      <option value="'Monaco', monospace">Monaco</option>
+                      <option value="'Fira Code', monospace">Fira Code</option>
+                      <option value="'Consolas', monospace">Consolas</option>
+                      <option value="'Source Code Pro', monospace">Source Code Pro</option>
+                    </Select>
+                  </StyleRow>
+                  <StyleRow>
+                    <StyleLabel>Color</StyleLabel>
+                    <ColorPickerInput>
+                      <input
+                        type="color"
+                        value={styleConfig.code.color}
+                        onChange={(e) => handleStyleChange('code', 'color', e.target.value)}
+                      />
+                      <input
+                        type="text"
+                        value={styleConfig.code.color}
+                        onChange={(e) => handleStyleChange('code', 'color', e.target.value)}
+                      />
+                    </ColorPickerInput>
+                  </StyleRow>
+                  <StyleRow>
+                    <StyleLabel>Font Size</StyleLabel>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <Input
+                        type="text"
+                        value={styleConfig.code.fontSize.replace('px', '')}
+                        onChange={(e) => handleStyleChange('code', 'fontSize', e.target.value)}
+                      />
+                      <UnitLabel>px</UnitLabel>
+                    </div>
+                  </StyleRow>
+                  <StyleRow>
+                    <StyleLabel>Background</StyleLabel>
+                    <ColorPickerInput>
+                      <input
+                        type="color"
+                        value={styleConfig.code.backgroundColor}
+                        onChange={(e) => handleStyleChange('code', 'backgroundColor', e.target.value)}
+                      />
+                      <input
+                        type="text"
+                        value={styleConfig.code.backgroundColor}
+                        onChange={(e) => handleStyleChange('code', 'backgroundColor', e.target.value)}
                       />
                     </ColorPickerInput>
                   </StyleRow>
