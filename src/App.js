@@ -449,6 +449,79 @@ const HeaderCopyButton = styled.button`
   }
 `;
 
+// 1. 首先添加模板选择器的样式组件
+const TemplateSelector = styled.div`
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+`;
+
+const TemplateSelect = styled.select`
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #333;
+  
+  &:focus {
+    outline: none;
+    border-color: #1890ff;
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+  }
+`;
+
+// 2. 添加模板配置
+const styleTemplates = {
+  default: {
+    name: "默认",
+    styles: {
+      global: {
+        fontFamily: "'Roboto', sans-serif",
+        letterSpacing: "0px",
+        lineHeight: "1.6",
+        paragraphSpacing: "16px",
+        contentPadding: "0px", // 两侧空白宽度
+        headingAlign: "left" // 标题对齐方式
+      },
+      h1: {
+        color: '#000000',
+        fontSize: '24px',
+      },
+      h2: {
+        color: '#000000',
+        fontSize: '20px',
+      },
+      h3: {
+        color: '#000000',
+        fontSize: '18px',
+      },
+      paragraph: {
+        color: '#000000',
+        fontSize: '16px',
+      },
+      bold: {
+        color: '#000000',
+      },
+      blockquote: {
+        color: '#666666',
+        fontSize: '16px',
+        borderColor: '#ccc',
+        backgroundColor: '#f9f9f9'
+      },
+      code: {
+        color: '#333333',
+        fontSize: '14px',
+        backgroundColor: '#f5f5f5',
+        fontFamily: "'Monaco', monospace"
+      }
+    }
+  },
+  // 其他模板将在后续添加
+};
+
 // App 组件
 const App = () => {
   const [toast, setToast] = useState(null);
@@ -456,6 +529,7 @@ const App = () => {
   const textareaRef = useRef(null);
   const previewRef = useRef(null);
   const isScrollingRef = useRef(false); // 防止无限循环
+  const [currentTemplate, setCurrentTemplate] = useState('default');
 
   const showToast = (message, type) => {
     setToast({ message, type });
@@ -999,6 +1073,20 @@ const App = () => {
     };
   }, []);
 
+  // 4. 添加模板切换处理函数
+  const handleTemplateChange = (templateId) => {
+    setCurrentTemplate(templateId);
+    const newConfig = {
+      ...styleConfig,
+      ...styleTemplates[templateId].styles
+    };
+    setStyleConfig(newConfig);
+    
+    // 生成新的 CSS 并更新
+    const newCSS = generateCSS(newConfig);
+    updateStyle(newCSS);
+  };
+
   return (
     <>
       <GlobalStyle />
@@ -1116,6 +1204,21 @@ const App = () => {
               />
             ) : (
               <BasicEditorContainer>
+                {/* 添加模板选择器 */}
+                <TemplateSelector>
+                  <StyleTitle>Style Template</StyleTitle>
+                  <TemplateSelect
+                    value={currentTemplate}
+                    onChange={(e) => handleTemplateChange(e.target.value)}
+                  >
+                    {Object.entries(styleTemplates).map(([id, template]) => (
+                      <option key={id} value={id}>
+                        {template.name}
+                      </option>
+                    ))}
+                  </TemplateSelect>
+                </TemplateSelector>
+
                 {/* 全局样式设置 */}
                 <StyleSection>
                   <StyleTitle>Global Settings</StyleTitle>
