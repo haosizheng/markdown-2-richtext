@@ -922,17 +922,27 @@ const App = () => {
     `;
   };
 
-  // 修改 handleStyleChange 函数，确保正确处理单位
+  // 添加一个数字输入验证函数
+  const isValidNumberInput = (value) => {
+    // 只允许数字、小数点和退格键
+    return value === '' || /^-?\d*\.?\d*$/.test(value);
+  };
+
+  // 修改 handleStyleChange 函数
   const handleStyleChange = (section, property, value) => {
+    // 对于需要数字验证的属性，先进行验证
+    const numericProperties = ['letterSpacing', 'lineHeight', 'paragraphSpacing', 'fontSize'];
+    if (numericProperties.includes(property) && !isValidNumberInput(value)) {
+      return; // 如果输入无效，直接返回
+    }
+
     const newConfig = JSON.parse(JSON.stringify(styleConfig));
     
     if (property === 'fontSize' || property === 'paragraphSpacing' || property === 'letterSpacing') {
       const cleanValue = value.toString().replace(/px$/, '');
       newConfig[section][property] = `${cleanValue}px`;
     } 
-    // 修改 lineHeight 的处理逻辑
     else if (property === 'lineHeight') {
-      // 直接使用输入值，让 Input 组件的 onChange 和 onBlur 来处理验证
       newConfig[section][property] = value;
     }
     else {
@@ -943,6 +953,51 @@ const App = () => {
     const newCSS = generateCSS(newConfig);
     updateStyle(newCSS);
   };
+
+  // 修改输入框组件的使用方式
+  // Letter Spacing
+  // <Input
+  //   type="text"
+  //   value={styleConfig.global.letterSpacing.replace('px', '')}
+  //   onChange={(e) => {
+  //     if (isValidNumberInput(e.target.value)) {
+  //       handleStyleChange('global', 'letterSpacing', e.target.value);
+  //     }
+  //   }}
+  // />
+
+  // Line Height
+  // <Input
+  //   type="text"
+  //   value={styleConfig.global.lineHeight}
+  //   onChange={(e) => {
+  //     if (isValidNumberInput(e.target.value)) {
+  //       handleStyleChange('global', 'lineHeight', e.target.value);
+  //     }
+  //   }}
+  // />
+
+  // Paragraph Spacing
+  // <Input
+  //   type="text"
+  //   value={styleConfig.global.paragraphSpacing.replace('px', '')}
+  //   onChange={(e) => {
+  //     if (isValidNumberInput(e.target.value)) {
+  //       handleStyleChange('global', 'paragraphSpacing', e.target.value);
+  //     }
+  //   }}
+  // />
+
+  // Font Size (用于段落、引用块等)
+  // <Input
+  //   type="text"
+  //   value={styleConfig.paragraph.fontSize.replace('px', '')}
+  //   onChange={(e) => {
+  //     if (isValidNumberInput(e.target.value)) {
+  //       handleStyleChange('paragraph', 'fontSize', e.target.value);
+  //     }
+  //   }}
+  // />
 
   // 修改 handlePaste 函数
   const handlePaste = (e) => {
@@ -1376,7 +1431,11 @@ const App = () => {
                       <Input
                         type="text"
                         value={styleConfig.global.letterSpacing.replace('px', '')}
-                        onChange={(e) => handleStyleChange('global', 'letterSpacing', e.target.value)}
+                        onChange={(e) => {
+                          if (isValidNumberInput(e.target.value)) {
+                            handleStyleChange('global', 'letterSpacing', e.target.value);
+                          }
+                        }}
                       />
                       <UnitLabel>px</UnitLabel>
                     </div>
@@ -1386,7 +1445,11 @@ const App = () => {
                     <Input
                       type="text"
                       value={styleConfig.global.lineHeight}
-                      onChange={(e) => handleStyleChange('global', 'lineHeight', e.target.value)}
+                      onChange={(e) => {
+                        if (isValidNumberInput(e.target.value)) {
+                          handleStyleChange('global', 'lineHeight', e.target.value);
+                        }
+                      }}
                     />
                   </StyleRow>
                   <StyleRow>
@@ -1395,7 +1458,11 @@ const App = () => {
                       <Input
                         type="text"
                         value={styleConfig.global.paragraphSpacing.replace('px', '')}
-                        onChange={(e) => handleStyleChange('global', 'paragraphSpacing', e.target.value)}
+                        onChange={(e) => {
+                          if (isValidNumberInput(e.target.value)) {
+                            handleStyleChange('global', 'paragraphSpacing', e.target.value);
+                          }
+                        }}
                       />
                       <UnitLabel>px</UnitLabel>
                     </div>
@@ -1457,7 +1524,11 @@ const App = () => {
                       <Input
                         type="text"
                         value={styleConfig.paragraph.fontSize.replace('px', '')}
-                        onChange={(e) => handleStyleChange('paragraph', 'fontSize', e.target.value)}
+                        onChange={(e) => {
+                          if (isValidNumberInput(e.target.value)) {
+                            handleStyleChange('paragraph', 'fontSize', e.target.value);
+                          }
+                        }}
                       />
                       <UnitLabel>px</UnitLabel>
                     </div>
@@ -1508,7 +1579,11 @@ const App = () => {
                       <Input
                         type="text"
                         value={styleConfig.blockquote.fontSize.replace('px', '')}
-                        onChange={(e) => handleStyleChange('blockquote', 'fontSize', e.target.value)}
+                        onChange={(e) => {
+                          if (isValidNumberInput(e.target.value)) {
+                            handleStyleChange('blockquote', 'fontSize', e.target.value);
+                          }
+                        }}
                       />
                       <UnitLabel>px</UnitLabel>
                     </div>
