@@ -448,11 +448,10 @@ const styleTemplates = {
         letterSpacing: "0px",
         lineHeight: "1.6",
         paragraphSpacing: "16px",
-        headingAlign: "left"
+        headingAlign: "left",
+        headingColor: "#000000",
+        headingSize: "medium"
       },
-      h1: { color: '#000000', fontSize: '24px' },
-      h2: { color: '#000000', fontSize: '20px' },
-      h3: { color: '#000000', fontSize: '18px' },
       paragraph: { color: '#000000', fontSize: '16px' },
       bold: { color: '#000000' },
       blockquote: {
@@ -479,9 +478,6 @@ const styleTemplates = {
         paragraphSpacing: "20px",
         headingAlign: "left"
       },
-      h1: { color: '#2d333b', fontSize: '28px' },
-      h2: { color: '#2d333b', fontSize: '24px' },
-      h3: { color: '#2d333b', fontSize: '20px' },
       paragraph: { color: '#444444', fontSize: '15px' },
       bold: { color: '#1a73e8' },
       blockquote: {
@@ -508,9 +504,6 @@ const styleTemplates = {
         paragraphSpacing: "24px",
         headingAlign: "center"
       },
-      h1: { color: '#2c3e50', fontSize: '32px' },
-      h2: { color: '#34495e', fontSize: '26px' },
-      h3: { color: '#34495e', fontSize: '22px' },
       paragraph: { color: '#2c3e50', fontSize: '16px' },
       bold: { color: '#c0392b' },
       blockquote: {
@@ -537,9 +530,6 @@ const styleTemplates = {
         paragraphSpacing: "20px",
         headingAlign: "left"
       },
-      h1: { color: '#1e3a8a', fontSize: '28px' },
-      h2: { color: '#1e3a8a', fontSize: '24px' },
-      h3: { color: '#1e3a8a', fontSize: '20px' },
       paragraph: { color: '#333333', fontSize: '15px' },
       bold: { color: '#1e3a8a' },
       blockquote: {
@@ -566,9 +556,6 @@ const styleTemplates = {
         paragraphSpacing: "24px",
         headingAlign: "left"
       },
-      h1: { color: '#ff6b6b', fontSize: '30px' },
-      h2: { color: '#ff6b6b', fontSize: '26px' },
-      h3: { color: '#ff6b6b', fontSize: '22px' },
       paragraph: { color: '#2d3436', fontSize: '16px' },
       bold: { color: '#ff6b6b' },
       blockquote: {
@@ -584,6 +571,25 @@ const styleTemplates = {
         fontFamily: "'Monaco', monospace"
       }
     }
+  }
+};
+
+// 1. 添加标题大小预设
+const headingSizePresets = {
+  large: {
+    h1: '32px',
+    h2: '28px',
+    h3: '24px'
+  },
+  medium: {
+    h1: '28px',
+    h2: '24px',
+    h3: '20px'
+  },
+  small: {
+    h1: '24px',
+    h2: '20px',
+    h3: '16px'
   }
 };
 
@@ -634,19 +640,9 @@ const App = () => {
       letterSpacing: "0px",
       lineHeight: "1.6",
       paragraphSpacing: "16px",
-      headingAlign: "left"
-    },
-    h1: {
-      color: '#000000',
-      fontSize: '24px',
-    },
-    h2: {
-      color: '#000000',
-      fontSize: '20px',
-    },
-    h3: {
-      color: '#000000',
-      fontSize: '18px',
+      headingAlign: "left",
+      headingColor: "#000000",    // 新增：统一的标题颜色
+      headingSize: "medium"       // 新增：标题大小预设
     },
     paragraph: {
       color: '#000000',
@@ -666,13 +662,6 @@ const App = () => {
       fontSize: '14px',
       backgroundColor: '#f5f5f5',
       fontFamily: "'Monaco', monospace"
-    },
-    link: {
-      color: '#1890ff',
-    },
-    list: {
-      bulletColor: '#000',
-      numberColor: '#000',
     }
   });
   
@@ -786,9 +775,10 @@ const App = () => {
     }
   };
 
-  // 修改 generateCSS 函数
+  // 3. 修改 generateCSS 函数
   const generateCSS = (config = styleConfig) => {
     const lineHeight = config.global.lineHeight || defaultValues.global.lineHeight;
+    const headingSizes = headingSizePresets[config.global.headingSize || 'medium'];
     
     return `
       /* Global styles */
@@ -812,23 +802,26 @@ const App = () => {
         letter-spacing: ${config.global.letterSpacing || defaultValues.global.letterSpacing};
       }
 
-      /* 标题样式 */
-      .preview-content h1 {
-        color: ${config.h1.color || defaultValues.h1.color};
-        font-size: ${config.h1.fontSize || defaultValues.h1.fontSize};
+      /* 标题统一样式 */
+      .preview-content h1,
+      .preview-content h2,
+      .preview-content h3 {
+        color: ${config.global.headingColor};
         margin: ${config.global.paragraphSpacing || defaultValues.global.paragraphSpacing} 0;
+        text-align: ${config.global.headingAlign || 'left'};
+      }
+
+      /* 各级标题大小 */
+      .preview-content h1 {
+        font-size: ${headingSizes.h1};
       }
 
       .preview-content h2 {
-        color: ${config.h2.color || defaultValues.h2.color};
-        font-size: ${config.h2.fontSize || defaultValues.h2.fontSize};
-        margin: ${config.global.paragraphSpacing || defaultValues.global.paragraphSpacing} 0;
+        font-size: ${headingSizes.h2};
       }
 
       .preview-content h3 {
-        color: ${config.h3.color || defaultValues.h3.color};
-        font-size: ${config.h3.fontSize || defaultValues.h3.fontSize};
-        margin: ${config.global.paragraphSpacing || defaultValues.global.paragraphSpacing} 0;
+        font-size: ${headingSizes.h3};
       }
 
       /* 段落和列表样式 */
@@ -1416,92 +1409,32 @@ const App = () => {
 
                 {/* 3. 标题设置（H1-H3） */}
                 <StyleSection>
-                  <StyleTitle>Heading 1</StyleTitle>
+                  <StyleTitle>Headings</StyleTitle>
                   <StyleRow>
                     <StyleLabel>Color</StyleLabel>
                     <ColorPickerInput>
                       <input
                         type="color"
-                        value={styleConfig.h1.color}
-                        onChange={(e) => handleStyleChange('h1', 'color', e.target.value)}
+                        value={styleConfig.global.headingColor}
+                        onChange={(e) => handleStyleChange('global', 'headingColor', e.target.value)}
                       />
                       <input
                         type="text"
-                        value={styleConfig.h1.color}
-                        onChange={(e) => handleStyleChange('h1', 'color', e.target.value)}
+                        value={styleConfig.global.headingColor}
+                        onChange={(e) => handleStyleChange('global', 'headingColor', e.target.value)}
                       />
                     </ColorPickerInput>
                   </StyleRow>
                   <StyleRow>
-                    <StyleLabel>Font Size</StyleLabel>
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                      <Input
-                        type="text"
-                        value={styleConfig.h1.fontSize.replace('px', '')}
-                        onChange={(e) => handleStyleChange('h1', 'fontSize', e.target.value)}
-                      />
-                      <UnitLabel>px</UnitLabel>
-                    </div>
-                  </StyleRow>
-                </StyleSection>
-
-                <StyleSection>
-                  <StyleTitle>Heading 2</StyleTitle>
-                  <StyleRow>
-                    <StyleLabel>Color</StyleLabel>
-                    <ColorPickerInput>
-                      <input
-                        type="color"
-                        value={styleConfig.h2.color}
-                        onChange={(e) => handleStyleChange('h2', 'color', e.target.value)}
-                      />
-                      <input
-                        type="text"
-                        value={styleConfig.h2.color}
-                        onChange={(e) => handleStyleChange('h2', 'color', e.target.value)}
-                      />
-                    </ColorPickerInput>
-                  </StyleRow>
-                  <StyleRow>
-                    <StyleLabel>Font Size</StyleLabel>
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                      <Input
-                        type="text"
-                        value={styleConfig.h2.fontSize.replace('px', '')}
-                        onChange={(e) => handleStyleChange('h2', 'fontSize', e.target.value)}
-                      />
-                      <UnitLabel>px</UnitLabel>
-                    </div>
-                  </StyleRow>
-                </StyleSection>
-
-                <StyleSection>
-                  <StyleTitle>Heading 3</StyleTitle>
-                  <StyleRow>
-                    <StyleLabel>Color</StyleLabel>
-                    <ColorPickerInput>
-                      <input
-                        type="color"
-                        value={styleConfig.h3.color}
-                        onChange={(e) => handleStyleChange('h3', 'color', e.target.value)}
-                      />
-                      <input
-                        type="text"
-                        value={styleConfig.h3.color}
-                        onChange={(e) => handleStyleChange('h3', 'color', e.target.value)}
-                      />
-                    </ColorPickerInput>
-                  </StyleRow>
-                  <StyleRow>
-                    <StyleLabel>Font Size</StyleLabel>
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                      <Input
-                        type="text"
-                        value={styleConfig.h3.fontSize.replace('px', '')}
-                        onChange={(e) => handleStyleChange('h3', 'fontSize', e.target.value)}
-                      />
-                      <UnitLabel>px</UnitLabel>
-                    </div>
+                    <StyleLabel>Size</StyleLabel>
+                    <Select
+                      value={styleConfig.global.headingSize}
+                      onChange={(e) => handleStyleChange('global', 'headingSize', e.target.value)}
+                    >
+                      <option value="large">Large</option>
+                      <option value="medium">Medium</option>
+                      <option value="small">Small</option>
+                    </Select>
                   </StyleRow>
                 </StyleSection>
 
