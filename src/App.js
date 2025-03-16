@@ -1,6 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import styled, { createGlobalStyle } from 'styled-components';
+import { translations } from './translations'; // 修改导入路径
+import LanguageSwitch from './components/LanguageSwitch';
+import { defaultValues, headingSizePresets, styleTemplates } from './config/styleConfig';
 
 // 修改全局样式的创建方式
 const GlobalStyle = createGlobalStyle`
@@ -438,165 +441,6 @@ const TemplateSelect = styled.select`
   }
 `;
 
-// 2. 添加模板配置
-const styleTemplates = {
-  default: {
-    name: "默认",
-    styles: {
-      global: {
-        fontFamily: "'Roboto', sans-serif",
-        letterSpacing: "0px",
-        lineHeight: "1.6",
-        paragraphSpacing: "16px",
-        headingAlign: "left",
-        headingColor: "#000000",
-        headingSize: "medium"
-      },
-      paragraph: { color: '#000000', fontSize: '16px' },
-      bold: { color: '#000000' },
-      blockquote: {
-        color: '#666666',
-        fontSize: '16px',
-        borderColor: '#ccc',
-        backgroundColor: '#f9f9f9'
-      },
-      code: {
-        color: '#333333',
-        fontSize: '14px',
-        backgroundColor: '#f5f5f5',
-        fontFamily: "'Monaco', monospace"
-      }
-    }
-  },
-  tech: {
-    name: "科技风",
-    styles: {
-      global: {
-        fontFamily: "'Roboto Mono', monospace",
-        letterSpacing: "0.5px",
-        lineHeight: "1.7",
-        paragraphSpacing: "20px",
-        headingAlign: "left",
-        headingColor: "#1a73e8"
-      },
-      paragraph: { color: '#444444', fontSize: '15px' },
-      bold: { color: '#1a73e8' },
-      blockquote: {
-        color: '#555555',
-        fontSize: '15px',
-        borderColor: '#1a73e8',
-        backgroundColor: '#f8f9fa'
-      },
-      code: {
-        color: '#24292e',
-        fontSize: '14px',
-        backgroundColor: '#f6f8fa',
-        fontFamily: "'Fira Code', monospace"
-      }
-    }
-  },
-  literary: {
-    name: "文艺风",
-    styles: {
-      global: {
-        fontFamily: "'Noto Serif SC', serif",
-        letterSpacing: "1px",
-        lineHeight: "1.8",
-        paragraphSpacing: "24px",
-        headingAlign: "center",
-        headingColor: "#c0392b"
-      },
-      paragraph: { color: '#2c3e50', fontSize: '16px' },
-      bold: { color: '#c0392b' },
-      blockquote: {
-        color: '#7f8c8d',
-        fontSize: '16px',
-        borderColor: '#e74c3c',
-        backgroundColor: '#fdf5f5'
-      },
-      code: {
-        color: '#7f8c8d',
-        fontSize: '15px',
-        backgroundColor: '#f9f9f9',
-        fontFamily: "'Monaco', monospace"
-      }
-    }
-  },
-  business: {
-    name: "商务风",
-    styles: {
-      global: {
-        fontFamily: "'Open Sans', sans-serif",
-        letterSpacing: "0.3px",
-        lineHeight: "1.6",
-        paragraphSpacing: "20px",
-        headingAlign: "left",
-        headingColor: "#1e3a8a"
-      },
-      paragraph: { color: '#333333', fontSize: '15px' },
-      bold: { color: '#1e3a8a' },
-      blockquote: {
-        color: '#666666',
-        fontSize: '15px',
-        borderColor: '#1e3a8a',
-        backgroundColor: '#f8fafc'
-      },
-      code: {
-        color: '#475569',
-        fontSize: '14px',
-        backgroundColor: '#f1f5f9',
-        fontFamily: "'Consolas', monospace"
-      }
-    }
-  },
-  media: {
-    name: "新媒体",
-    styles: {
-      global: {
-        fontFamily: "'Noto Sans SC', sans-serif",
-        letterSpacing: "0.5px",
-        lineHeight: "1.8",
-        paragraphSpacing: "24px",
-        headingAlign: "left",
-        headingColor: "#ff6b6b"
-      },
-      paragraph: { color: '#2d3436', fontSize: '16px' },
-      bold: { color: '#ff6b6b' },
-      blockquote: {
-        color: '#636e72',
-        fontSize: '16px',
-        borderColor: '#ff6b6b',
-        backgroundColor: '#fff8f8'
-      },
-      code: {
-        color: '#2d3436',
-        fontSize: '14px',
-        backgroundColor: '#f8f9fa',
-        fontFamily: "'Monaco', monospace"
-      }
-    }
-  }
-};
-
-// 1. 添加标题大小预设
-const headingSizePresets = {
-  large: {
-    h1: '32px',
-    h2: '28px',
-    h3: '24px'
-  },
-  medium: {
-    h1: '28px',
-    h2: '24px',
-    h3: '20px'
-  },
-  small: {
-    h1: '24px',
-    h2: '20px',
-    h3: '16px'
-  }
-};
-
 // App 组件
 const App = () => {
   const [toast, setToast] = useState(null);
@@ -605,6 +449,8 @@ const App = () => {
   const previewRef = useRef(null);
   const isScrollingRef = useRef(false); // 防止无限循环
   const [currentTemplate, setCurrentTemplate] = useState('default');
+  const [language, setLanguage] = useState('zh'); // 默认中文
+  const t = translations[language]; // 获取当前语言的翻译
 
   const showToast = (message, type) => {
     setToast({ message, type });
@@ -640,7 +486,7 @@ const App = () => {
   const [editorMode, setEditorMode] = useState('basic'); // 'basic' or 'advanced'
   const [styleConfig, setStyleConfig] = useState({
     global: {
-      fontFamily: "'Roboto', sans-serif",
+      fontFamily: "-apple-system, 'Microsoft YaHei'",
       letterSpacing: "0px",
       lineHeight: "1.6",
       paragraphSpacing: "16px",
@@ -673,52 +519,10 @@ const App = () => {
     const previewContent = document.querySelector('.preview-content');
     if (previewContent) {
       try {
-        // 创建一个临时的可编辑div
-        const tempDiv = document.createElement('div');
-        tempDiv.contentEditable = true;
-        tempDiv.style.position = 'absolute';
-        tempDiv.style.left = '-9999px';
-        
-        // 复制原始节点，这样可以保留完整的样式和结构
-        const clonedContent = previewContent.cloneNode(true);
-        
-        // 将 h3、h4、h5、h6 转换为加粗文本
-        clonedContent.querySelectorAll('h3, h4, h5, h6').forEach(header => {
-          const strong = document.createElement('strong');
-          strong.textContent = header.textContent;
-          header.parentNode.replaceChild(strong, header);
-        });
-        
-        // 确保图片使用完整的 URL
-        clonedContent.querySelectorAll('img').forEach(img => {
-          // 确保图片 src 是完整的
-          if (img.alt && img.alt.startsWith('img-')) {
-            const image = images.find(i => i.id === img.alt);
-            if (image) {
-              img.src = image.url;
-            }
-          }
-        });
-        
-        tempDiv.appendChild(clonedContent);
-        document.body.appendChild(tempDiv);
-        
-        // 选择内容
-        const selection = window.getSelection();
-        const range = document.createRange();
-        range.selectNodeContents(tempDiv);
-        selection.removeAllRanges();
-        selection.addRange(range);
-        
-        document.execCommand('copy');
-        
-        document.body.removeChild(tempDiv);
-        selection.removeAllRanges();
-        
-        showToast('已复制富文本内容到剪贴板！', 'success');
+        await navigator.clipboard.writeText(previewContent.innerHTML);
+        alert(t.copySuccess);
       } catch (err) {
-        console.error('Copy error:', err);
-        showToast('复制失败，请重试', 'error');
+        alert(t.copyError);
       }
     }
   };
@@ -735,49 +539,6 @@ const App = () => {
     setCSS(newCSS);
     if (styleRef.current) {
       styleRef.current.textContent = newCSS;
-    }
-  };
-
-  const defaultValues = {
-    global: {
-      fontFamily: 'Arial',
-      letterSpacing: '0px',
-      lineHeight: '1.6',
-      paragraphSpacing: '16px',
-      headingAlign: 'left',
-      headingColor: '#000000',    // 添加默认标题颜色
-      headingSize: 'medium'
-    },
-    h1: {
-      color: '#000000',
-      fontSize: '24px',
-    },
-    h2: {
-      color: '#000000',
-      fontSize: '20px',
-    },
-    h3: {
-      color: '#000000',
-      fontSize: '18px',
-    },
-    paragraph: {
-      color: '#000000',
-      fontSize: '16px',
-    },
-    bold: {
-      color: '#000000',
-    },
-    blockquote: {
-      color: '#666666',
-      fontSize: '16px',
-      borderColor: '#ccc',
-      backgroundColor: '#f9f9f9'
-    },
-    code: {
-      color: '#333333',
-      fontSize: '14px',
-      backgroundColor: '#f5f5f5',
-      fontFamily: "'Monaco', monospace"
     }
   };
 
@@ -1273,28 +1034,29 @@ const App = () => {
     <>
       <GlobalStyle />
       <Title>MarkDown To Rich Text Format</Title>
+      <LanguageSwitch language={language} setLanguage={setLanguage} />
     <AppContainer>
         <EditingContainer>
       <EditorContainer>
-            <SectionTitle>Input (MARKDOWN Syntax)</SectionTitle>
+            <SectionTitle>{t.input}</SectionTitle>
         <StyledTextarea
               ref={textareaRef}
           value={markdown}
           onChange={(e) => setMarkdown(e.target.value)}
               onPaste={handlePaste}
-              placeholder="Enter Markdown text..."
+              placeholder={t.inputPlaceholder}
         />
       </EditorContainer>
           
           <EditorContainer>
             <SectionTitle>
-              Preview
+              {t.preview}
               <HeaderCopyButton onClick={handleCopy}>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                   <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                 </svg>
-                Copy All
+                {t.copyAll}
               </HeaderCopyButton>
             </SectionTitle>
             <PreviewContainer 
@@ -1364,18 +1126,7 @@ const App = () => {
 
           <EditorContainer>
             <SectionTitle>
-              Format Editor
-              <ModeSwitch>
-                Advanced Mode
-                <Switch>
-                  <input
-                    type="checkbox"
-                    checked={editorMode === 'advanced'}
-                    onChange={(e) => setEditorMode(e.target.checked ? 'advanced' : 'basic')}
-                  />
-                  <span></span>
-                </Switch>
-              </ModeSwitch>
+              {t.formatEditor}
             </SectionTitle>
             
             {editorMode === 'advanced' ? (
@@ -1388,14 +1139,14 @@ const App = () => {
               <BasicEditorContainer>
                 {/* 1. 模板选择 */}
                 <TemplateSelector>
-                  <StyleTitle>Style Template</StyleTitle>
+                  <StyleTitle>{t.styleTemplate}</StyleTitle>
                   <TemplateSelect
                     value={currentTemplate}
                     onChange={(e) => handleTemplateChange(e.target.value)}
                   >
                     {Object.entries(styleTemplates).map(([id, template]) => (
                       <option key={id} value={id}>
-                        {template.name}
+                        {t[template.nameKey]}
                       </option>
                     ))}
                   </TemplateSelect>
@@ -1403,30 +1154,38 @@ const App = () => {
 
                 {/* 2. 全局设置 */}
                 <StyleSection>
-                  <StyleTitle>Global Settings</StyleTitle>
+                  <StyleTitle>{t.globalSettings}</StyleTitle>
                   <StyleRow>
-                    <StyleLabel>Font Family</StyleLabel>
+                    <StyleLabel>{t.fontFamily}</StyleLabel>
                     <Select
                       value={styleConfig.global.fontFamily}
                       onChange={(e) => handleStyleChange('global', 'fontFamily', e.target.value)}
                     >
-                      {/* 英文字体 */}
-                      <option value="'Roboto', sans-serif">Roboto</option>
-                      <option value="'Open Sans', sans-serif">Open Sans</option>
-                      <option value="'Lato', sans-serif">Lato</option>
-                      <option value="'Montserrat', sans-serif">Montserrat</option>
-                      <option value="'Playfair Display', serif">Playfair Display</option>
-                      
-                      {/* 中文字体 */}
-                      <option value="'Noto Sans SC', sans-serif">思源黑体 (Noto Sans SC)</option>
-                      <option value="'Noto Serif SC', serif">思源宋体 (Noto Serif SC)</option>
-                      <option value="'ZCOOL XiaoWei', serif">站酷小薇 (ZCOOL XiaoWei)</option>
-                      <option value="'ZCOOL QingKe HuangYou', cursive">站酷庆科黄油体 (ZCOOL QingKe HuangYou)</option>
-                      <option value="'Ma Shan Zheng', cursive">马善政楷体 (Ma Shan Zheng)</option>
+                      <optgroup label={`${t.systemFonts} ${t.wechatSupported}`}>
+                        <option value="'Microsoft YaHei', -apple-system, sans-serif">{t.microsoftYahei}</option>
+                        <option value="SimSun, serif">{t.simsun}</option>
+                        <option value="STHeiti, sans-serif">{t.stheiti}</option>
+                      </optgroup>
+                      <optgroup label={`${t.genericFonts} ${t.wechatSupported}`}>
+                        <option value="sans-serif">{t.sansSerif}</option>
+                        <option value="serif">{t.serif}</option>
+                      </optgroup>
+                      <optgroup label={t.otherFonts}>
+                        <option value="'Roboto', sans-serif">Roboto</option>
+                        <option value="'Open Sans', sans-serif">Open Sans</option>
+                        <option value="'Lato', sans-serif">Lato</option>
+                        <option value="'Montserrat', sans-serif">Montserrat</option>
+                        <option value="'Playfair Display', serif">Playfair Display</option>
+                        <option value="'Noto Sans SC', sans-serif">思源黑体 (Noto Sans SC)</option>
+                        <option value="'Noto Serif SC', serif">思源宋体 (Noto Serif SC)</option>
+                        <option value="'ZCOOL XiaoWei', serif">站酷小薇 (ZCOOL XiaoWei)</option>
+                        <option value="'ZCOOL QingKe HuangYou', cursive">站酷庆科黄油体 (ZCOOL QingKe HuangYou)</option>
+                        <option value="'Ma Shan Zheng', cursive">马善政楷体 (Ma Shan Zheng)</option>
+                      </optgroup>
                     </Select>
                   </StyleRow>
                   <StyleRow>
-                    <StyleLabel>Letter Spacing</StyleLabel>
+                    <StyleLabel>{t.letterSpacing}</StyleLabel>
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                       <Input
                         type="text"
@@ -1441,7 +1200,7 @@ const App = () => {
                     </div>
                   </StyleRow>
                   <StyleRow>
-                    <StyleLabel>Line Height</StyleLabel>
+                    <StyleLabel>{t.lineHeight}</StyleLabel>
                     <Input
                       type="text"
                       value={styleConfig.global.lineHeight}
@@ -1453,7 +1212,7 @@ const App = () => {
                     />
                   </StyleRow>
                   <StyleRow>
-                    <StyleLabel>Paragraph Spacing</StyleLabel>
+                    <StyleLabel>{t.paragraphSpacing}</StyleLabel>
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                       <Input
                         type="text"
@@ -1471,9 +1230,9 @@ const App = () => {
 
                 {/* 3. 标题设置（H1-H3） */}
                 <StyleSection>
-                  <StyleTitle>Headings</StyleTitle>
+                  <StyleTitle>{t.headings}</StyleTitle>
                   <StyleRow>
-                    <StyleLabel>Color</StyleLabel>
+                    <StyleLabel>{t.color}</StyleLabel>
                     <ColorPickerInput>
                       <input
                         type="color"
@@ -1488,23 +1247,23 @@ const App = () => {
                     </ColorPickerInput>
                   </StyleRow>
                   <StyleRow>
-                    <StyleLabel>Size</StyleLabel>
+                    <StyleLabel>{t.size}</StyleLabel>
                     <Select
                       value={styleConfig.global.headingSize}
                       onChange={(e) => handleStyleChange('global', 'headingSize', e.target.value)}
                     >
-                      <option value="large">Large</option>
-                      <option value="medium">Medium</option>
-                      <option value="small">Small</option>
+                      <option value="large">{t.large}</option>
+                      <option value="medium">{t.medium}</option>
+                      <option value="small">{t.small}</option>
                     </Select>
                   </StyleRow>
                 </StyleSection>
 
                 {/* 4. 段落设置 */}
                 <StyleSection>
-                  <StyleTitle>Paragraph</StyleTitle>
+                  <StyleTitle>{t.paragraph}</StyleTitle>
                   <StyleRow>
-                    <StyleLabel>Color</StyleLabel>
+                    <StyleLabel>{t.color}</StyleLabel>
                     <ColorPickerInput>
                       <input
                         type="color"
@@ -1519,7 +1278,7 @@ const App = () => {
                     </ColorPickerInput>
                   </StyleRow>
                   <StyleRow>
-                    <StyleLabel>Font Size</StyleLabel>
+                    <StyleLabel>{t.fontSize}</StyleLabel>
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                       <Input
                         type="text"
@@ -1537,9 +1296,9 @@ const App = () => {
 
                 {/* 5. 加粗文本设置 */}
                 <StyleSection>
-                  <StyleTitle>Bold Text</StyleTitle>
+                  <StyleTitle>{t.boldText}</StyleTitle>
                   <StyleRow>
-                    <StyleLabel>Color</StyleLabel>
+                    <StyleLabel>{t.color}</StyleLabel>
                     <ColorPickerInput>
                       <input
                         type="color"
@@ -1557,9 +1316,9 @@ const App = () => {
 
                 {/* 6. 引用块设置 */}
                 <StyleSection>
-                  <StyleTitle>Blockquote</StyleTitle>
+                  <StyleTitle>{t.blockquote}</StyleTitle>
                   <StyleRow>
-                    <StyleLabel>Color</StyleLabel>
+                    <StyleLabel>{t.color}</StyleLabel>
                     <ColorPickerInput>
                       <input
                         type="color"
@@ -1574,7 +1333,7 @@ const App = () => {
                     </ColorPickerInput>
                   </StyleRow>
                   <StyleRow>
-                    <StyleLabel>Font Size</StyleLabel>
+                    <StyleLabel>{t.fontSize}</StyleLabel>
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                       <Input
                         type="text"
@@ -1589,7 +1348,7 @@ const App = () => {
                     </div>
                   </StyleRow>
                   <StyleRow>
-                    <StyleLabel>Border Color</StyleLabel>
+                    <StyleLabel>{t.borderColor}</StyleLabel>
                     <ColorPickerInput>
                       <input
                         type="color"
@@ -1604,7 +1363,7 @@ const App = () => {
                     </ColorPickerInput>
                   </StyleRow>
                   <StyleRow>
-                    <StyleLabel>Background</StyleLabel>
+                    <StyleLabel>{t.backgroundColor}</StyleLabel>
                     <ColorPickerInput>
                       <input
                         type="color"
@@ -1622,9 +1381,9 @@ const App = () => {
 
                 {/* 7. 代码块设置 */}
                 <StyleSection>
-                  <StyleTitle>Code</StyleTitle>
+                  <StyleTitle>{t.code}</StyleTitle>
                   <StyleRow>
-                    <StyleLabel>Font Family</StyleLabel>
+                    <StyleLabel>{t.fontFamily}</StyleLabel>
                     <Select
                       value={styleConfig.code.fontFamily}
                       onChange={(e) => handleStyleChange('code', 'fontFamily', e.target.value)}
@@ -1636,7 +1395,7 @@ const App = () => {
                     </Select>
                   </StyleRow>
                   <StyleRow>
-                    <StyleLabel>Color</StyleLabel>
+                    <StyleLabel>{t.color}</StyleLabel>
                     <ColorPickerInput>
                       <input
                         type="color"
@@ -1651,7 +1410,7 @@ const App = () => {
                     </ColorPickerInput>
                   </StyleRow>
                   <StyleRow>
-                    <StyleLabel>Font Size</StyleLabel>
+                    <StyleLabel>{t.fontSize}</StyleLabel>
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                       <Input
                         type="text"
@@ -1662,7 +1421,7 @@ const App = () => {
                     </div>
                   </StyleRow>
                   <StyleRow>
-                    <StyleLabel>Background</StyleLabel>
+                    <StyleLabel>{t.backgroundColor}</StyleLabel>
                     <ColorPickerInput>
                       <input
                         type="color"
