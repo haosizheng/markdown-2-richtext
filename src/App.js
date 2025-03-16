@@ -476,7 +476,8 @@ const styleTemplates = {
         letterSpacing: "0.5px",
         lineHeight: "1.7",
         paragraphSpacing: "20px",
-        headingAlign: "left"
+        headingAlign: "left",
+        headingColor: "#1a73e8"
       },
       paragraph: { color: '#444444', fontSize: '15px' },
       bold: { color: '#1a73e8' },
@@ -502,7 +503,8 @@ const styleTemplates = {
         letterSpacing: "1px",
         lineHeight: "1.8",
         paragraphSpacing: "24px",
-        headingAlign: "center"
+        headingAlign: "center",
+        headingColor: "#c0392b"
       },
       paragraph: { color: '#2c3e50', fontSize: '16px' },
       bold: { color: '#c0392b' },
@@ -528,7 +530,8 @@ const styleTemplates = {
         letterSpacing: "0.3px",
         lineHeight: "1.6",
         paragraphSpacing: "20px",
-        headingAlign: "left"
+        headingAlign: "left",
+        headingColor: "#1e3a8a"
       },
       paragraph: { color: '#333333', fontSize: '15px' },
       bold: { color: '#1e3a8a' },
@@ -554,7 +557,8 @@ const styleTemplates = {
         letterSpacing: "0.5px",
         lineHeight: "1.8",
         paragraphSpacing: "24px",
-        headingAlign: "left"
+        headingAlign: "left",
+        headingColor: "#ff6b6b"
       },
       paragraph: { color: '#2d3436', fontSize: '16px' },
       bold: { color: '#ff6b6b' },
@@ -740,7 +744,9 @@ const App = () => {
       letterSpacing: '0px',
       lineHeight: '1.6',
       paragraphSpacing: '16px',
-      headingAlign: 'left'
+      headingAlign: 'left',
+      headingColor: '#000000',    // 添加默认标题颜色
+      headingSize: 'medium'
     },
     h1: {
       color: '#000000',
@@ -779,6 +785,7 @@ const App = () => {
   const generateCSS = (config = styleConfig) => {
     const lineHeight = config.global.lineHeight || defaultValues.global.lineHeight;
     const headingSizes = headingSizePresets[config.global.headingSize || 'medium'];
+    const headingColor = config.global.headingColor || defaultValues.global.headingColor;
     
     return `
       /* Global styles */
@@ -806,9 +813,21 @@ const App = () => {
       .preview-content h1,
       .preview-content h2,
       .preview-content h3 {
-        color: ${config.global.headingColor};
+        color: ${headingColor};
         margin: ${config.global.paragraphSpacing || defaultValues.global.paragraphSpacing} 0;
         text-align: ${config.global.headingAlign || 'left'};
+      }
+
+      /* 链接样式 */
+      .preview-content a {
+        color: ${headingColor} !important; /* 使用 !important 覆盖默认样式 */
+        text-decoration: underline;
+        font-weight: bold; /* 添加加粗效果 */
+        transition: all 0.3s ease;
+      }
+
+      .preview-content a:hover {
+        opacity: 0.8;
       }
 
       /* 各级标题大小 */
