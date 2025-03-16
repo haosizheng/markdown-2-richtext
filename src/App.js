@@ -924,34 +924,22 @@ const App = () => {
 
   // 修改 handleStyleChange 函数，确保正确处理单位
   const handleStyleChange = (section, property, value) => {
-    // 创建一个新的配置对象，避免直接修改原对象
     const newConfig = JSON.parse(JSON.stringify(styleConfig));
     
-    // 处理需要添加单位的属性
     if (property === 'fontSize' || property === 'paragraphSpacing' || property === 'letterSpacing') {
-      // 确保值不包含单位，然后添加 px
       const cleanValue = value.toString().replace(/px$/, '');
       newConfig[section][property] = `${cleanValue}px`;
     } 
-    // 特殊处理 lineHeight，确保它不添加单位
+    // 修改 lineHeight 的处理逻辑
     else if (property === 'lineHeight') {
-      // 确保值是一个有效的数字
-      const numValue = parseFloat(value);
-      if (!isNaN(numValue)) {
-        newConfig[section][property] = numValue.toString();
-      } else {
-        newConfig[section][property] = value;
-      }
+      // 直接使用输入值，让 Input 组件的 onChange 和 onBlur 来处理验证
+      newConfig[section][property] = value;
     }
-    // 其他属性直接赋值
     else {
       newConfig[section][property] = value;
     }
     
-    // 更新状态
     setStyleConfig(newConfig);
-    
-    // 生成新的 CSS 并更新
     const newCSS = generateCSS(newConfig);
     updateStyle(newCSS);
   };
@@ -1398,19 +1386,7 @@ const App = () => {
                     <Input
                       type="text"
                       value={styleConfig.global.lineHeight}
-                      onChange={(e) => {
-                        // 允许输入数字、小数点和退格键
-                        if (/^\d*\.?\d*$/.test(e.target.value) || e.target.value === '') {
-                          handleStyleChange('global', 'lineHeight', e.target.value);
-                        }
-                      }}
-                      onBlur={(e) => {
-                        // 在失去焦点时确保值是有效的
-                        const value = parseFloat(e.target.value);
-                        if (isNaN(value) || value <= 0) {
-                          handleStyleChange('global', 'lineHeight', defaultValues.global.lineHeight);
-                        }
-                      }}
+                      onChange={(e) => handleStyleChange('global', 'lineHeight', e.target.value)}
                     />
                   </StyleRow>
                   <StyleRow>
