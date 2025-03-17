@@ -191,7 +191,7 @@ export const styleTemplates = {
     nameKey: "templateModernMinimal",
     styles: {
       global: {
-        fontFamily: "'Roboto', 'Noto Sans SC', sans-serif",
+        fontFamily: "'Microsoft YaHei', -apple-system, sans-serif",
         letterSpacing: "0.2px",
         lineHeight: "1.5",
         paragraphSpacing: "20px",
@@ -229,7 +229,7 @@ export const styleTemplates = {
     nameKey: "templateSoftElegance",
     styles: {
       global: {
-        fontFamily: "'Lora', 'Noto Serif SC', serif",
+        fontFamily: "SimSun, serif",
         letterSpacing: "0.3px",
         lineHeight: "1.8",
         paragraphSpacing: "24px",
@@ -266,7 +266,7 @@ export const styleTemplates = {
     nameKey: "templateDarkMatrix",
     styles: {
       global: {
-        fontFamily: "'Inter', 'Noto Sans SC', sans-serif",
+        fontFamily: "STHeiti, sans-serif",
         letterSpacing: "0.1px",
         lineHeight: "1.6",
         paragraphSpacing: "18px",
@@ -303,7 +303,7 @@ export const styleTemplates = {
     nameKey: "templateNatureInspired",
     styles: {
       global: {
-        fontFamily: "'Open Sans', 'Noto Sans SC', sans-serif",
+        fontFamily: "'Microsoft YaHei', -apple-system, sans-serif",
         letterSpacing: "0.4px",
         lineHeight: "1.7",
         paragraphSpacing: "22px",
@@ -340,7 +340,7 @@ export const styleTemplates = {
     nameKey: "templateVintageRetro",
     styles: {
       global: {
-        fontFamily: "'Playfair Display', 'Noto Serif SC', serif",
+        fontFamily: "SimSun, serif",
         letterSpacing: "0.5px",
         lineHeight: "1.6",
         paragraphSpacing: "20px",

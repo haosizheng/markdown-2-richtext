@@ -427,12 +427,25 @@ const App = () => {
         clonedContent.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach((header, index, headers) => {
           const strong = document.createElement('strong');
           strong.textContent = header.textContent;
-          strong.style.letterSpacing = styleConfig.global.letterSpacing; // 添加字间距
+          strong.style.color = styleConfig.global.headingColor;
+          strong.style.fontSize = header.style.fontSize;
+          strong.style.letterSpacing = styleConfig.global.letterSpacing;
+          strong.style.display = 'block';
+          strong.style.textAlign = styleConfig.global.headingAlign;
+          strong.style.fontFamily = styleConfig.global.fontFamily; // 添加字体设置
           
-          // 创建一个包装 div
+          // 创建包装 div
           const wrapper = document.createElement('div');
-          wrapper.style.letterSpacing = styleConfig.global.letterSpacing; // 添加字间距
-          wrapper.appendChild(strong);
+          wrapper.style.textAlign = styleConfig.global.headingAlign;
+          wrapper.style.fontFamily = styleConfig.global.fontFamily; // 添加字体设置
+          wrapper.style.margin = `${styleConfig.global.paragraphSpacing} 0`;
+          
+          // 创建额外的容器来确保样式被保留
+          const container = document.createElement('div');
+          container.style.fontFamily = styleConfig.global.fontFamily; // 添加字体设置
+          container.style.textAlign = styleConfig.global.headingAlign;
+          container.appendChild(strong);
+          wrapper.appendChild(container);
           
           // 如果不是最后一个标题，添加换行
           if (index < headers.length - 1) {
@@ -440,14 +453,30 @@ const App = () => {
             wrapper.appendChild(document.createElement('br'));
           }
           
+          // 替换原始标题
           header.parentNode.replaceChild(wrapper, header);
         });
         
         // 处理段落，应用行高和字间距
         clonedContent.querySelectorAll('p').forEach(p => {
           p.style.lineHeight = styleConfig.global.lineHeight;
-          p.style.letterSpacing = styleConfig.global.letterSpacing; // 添加字间距
+          p.style.letterSpacing = styleConfig.global.letterSpacing;
           p.style.marginBottom = styleConfig.global.paragraphSpacing;
+          p.style.color = styleConfig.paragraph.color; // 添加段落颜色
+          p.style.fontSize = styleConfig.paragraph.fontSize; // 添加段落字号
+        });
+        
+        // 处理加粗文本
+        clonedContent.querySelectorAll('strong').forEach(strong => {
+          strong.style.color = styleConfig.bold.color; // 添加加粗文本颜色
+        });
+        
+        // 处理引用块
+        clonedContent.querySelectorAll('blockquote').forEach(quote => {
+          quote.style.color = styleConfig.blockquote.color;
+          quote.style.fontSize = styleConfig.blockquote.fontSize;
+          quote.style.borderColor = styleConfig.blockquote.borderColor;
+          quote.style.backgroundColor = styleConfig.blockquote.backgroundColor;
         });
         
         // 处理图片
@@ -464,7 +493,8 @@ const App = () => {
         
         // 应用全局样式到容器
         tempDiv.style.lineHeight = styleConfig.global.lineHeight;
-        tempDiv.style.letterSpacing = styleConfig.global.letterSpacing; // 添加字间距
+        tempDiv.style.letterSpacing = styleConfig.global.letterSpacing;
+        tempDiv.style.fontFamily = styleConfig.global.fontFamily;
         
         tempDiv.appendChild(clonedContent);
         document.body.appendChild(tempDiv);
@@ -1097,17 +1127,26 @@ const App = () => {
   }, []);
 
   // 4. 添加模板切换处理函数
-  const handleTemplateChange = (templateId) => {
-    setCurrentTemplate(templateId);
-    const newConfig = {
-      ...styleConfig,
-      ...styleTemplates[templateId].styles
-    };
-    setStyleConfig(newConfig);
-    
-    // 生成新的 CSS 并更新
-    const newCSS = generateCSS(newConfig);
-    updateStyle(newCSS);
+  const handleTemplateChange = (templateName) => {
+    const template = styleTemplates[templateName];
+    if (template) {
+      // 更新当前模板
+      setCurrentTemplate(templateName);
+      
+      // 更新样式配置
+      const newConfig = JSON.parse(JSON.stringify(template.styles));
+      setStyleConfig(newConfig);
+      
+      // 更新 CSS
+      const newCSS = generateCSS(newConfig);
+      updateStyle(newCSS);
+      
+      // 更新样式编辑器中的字体选择
+      const fontSelect = document.querySelector('select[name="fontFamily"]');
+      if (fontSelect) {
+        fontSelect.value = template.styles.global.fontFamily;
+      }
+    }
   };
 
   return (
@@ -1230,8 +1269,8 @@ const App = () => {
                     value={currentTemplate}
                     onChange={(e) => handleTemplateChange(e.target.value)}
                   >
-                    {Object.entries(styleTemplates).map(([id, template]) => (
-                      <option key={id} value={id}>
+                    {Object.entries(styleTemplates).map(([key, template]) => (
+                      <option key={key} value={key}>
                         {t[template.nameKey]}
                       </option>
                     ))}
