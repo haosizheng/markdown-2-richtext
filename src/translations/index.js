@@ -20,7 +20,7 @@ export const translations = {
     copyAll: 'Copy All',
     copied: 'Copied to clipboard!',
     copyError: 'Copy failed, please try again',
-    wechatSupported: '(WeChat Supported)',
+    wechatSupported: 'WeChat Supported Fonts',
     systemFonts: 'System Fonts',
     genericFonts: 'Generic Fonts',
     otherFonts: 'Other Fonts',
@@ -48,6 +48,7 @@ export const translations = {
     templateDarkMatrix: "Dark Matrix",
     templateNatureInspired: "Nature Inspired",
     templateVintageRetro: "Vintage Retro",
+    pingfangSC: 'PingFang SC',
   },
   zh: {
     styleTemplate: '样式模板',
@@ -70,7 +71,7 @@ export const translations = {
     copyAll: '复制全部',
     copied: '已复制到剪贴板！',
     copyError: '复制失败，请重试',
-    wechatSupported: '(微信支持)',
+    wechatSupported: '微信支持的字体',
     systemFonts: '系统字体',
     genericFonts: '通用字体',
     otherFonts: '其他字体',
@@ -98,5 +99,6 @@ export const translations = {
     templateDarkMatrix: "黑客矩阵",
     templateNatureInspired: "自然灵感",
     templateVintageRetro: "复古风情",
+    pingfangSC: '苹方-简',
   }
 }; 

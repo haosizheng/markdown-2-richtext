@@ -1286,26 +1286,19 @@ const App = () => {
                       value={styleConfig.global.fontFamily}
                       onChange={(e) => handleStyleChange('global', 'fontFamily', e.target.value)}
                     >
-                      <optgroup label={`${t.systemFonts} ${t.wechatSupported}`}>
+                      <optgroup label={`${t.wechatSupported}`}>
+                        <option value="'PingFang SC', -apple-system, sans-serif">{t.pingfangSC}</option>
                         <option value="'Microsoft YaHei', -apple-system, sans-serif">{t.microsoftYahei}</option>
-                        <option value="SimSun, serif">{t.simsun}</option>
-                        <option value="STHeiti, sans-serif">{t.stheiti}</option>
-                      </optgroup>
-                      <optgroup label={`${t.genericFonts} ${t.wechatSupported}`}>
                         <option value="sans-serif">{t.sansSerif}</option>
                         <option value="serif">{t.serif}</option>
                       </optgroup>
                       <optgroup label={t.otherFonts}>
-                        <option value="'Roboto', sans-serif">Roboto</option>
-                        <option value="'Open Sans', sans-serif">Open Sans</option>
-                        <option value="'Lato', sans-serif">Lato</option>
-                        <option value="'Montserrat', sans-serif">Montserrat</option>
-                        <option value="'Playfair Display', serif">Playfair Display</option>
-                        <option value="'Noto Sans SC', sans-serif">思源黑体 (Noto Sans SC)</option>
-                        <option value="'Noto Serif SC', serif">思源宋体 (Noto Serif SC)</option>
-                        <option value="'ZCOOL XiaoWei', serif">站酷小薇 (ZCOOL XiaoWei)</option>
-                        <option value="'ZCOOL QingKe HuangYou', cursive">站酷庆科黄油体 (ZCOOL QingKe HuangYou)</option>
-                        <option value="'Ma Shan Zheng', cursive">马善政楷体 (Ma Shan Zheng)</option>
+                        <option value="SimSun, serif">{t.simsun}</option>
+                        <option value="STHeiti, sans-serif">{t.stheiti}</option>
+                        <option value="'Noto Sans SC', sans-serif">Noto Sans SC</option>
+                        <option value="'Noto Serif SC', serif">Noto Serif SC</option>
+                        <option value="'ZCOOL XiaoWei', serif">ZCOOL XiaoWei</option>
+                        <option value="'ZCOOL QingKe HuangYou', sans-serif">ZCOOL QingKe HuangYou</option>
                       </optgroup>
                     </Select>
                   </StyleRow>
