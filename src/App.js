@@ -448,10 +448,7 @@ const App = () => {
           wrapper.appendChild(container);
           
           // 如果不是最后一个标题，添加换行
-          if (index < headers.length - 1) {
-            wrapper.appendChild(document.createElement('br'));
-            wrapper.appendChild(document.createElement('br'));
-          }
+      
           
           // 替换原始标题
           header.parentNode.replaceChild(wrapper, header);
