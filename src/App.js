@@ -795,19 +795,35 @@ const App = () => {
     }
   };
 
-  // 1. 改进 getMarkdownKeyPoints 中的代码块识别
+  // 添加回 getMarkdownKeyPoints 函数，并改进它
   const getMarkdownKeyPoints = (markdown) => {
     const keyPoints = [];
     const lines = markdown.split('\n');
     let inCodeBlock = false;
     let codeBlockContent = [];
     let codeBlockStartIndex = -1;
+    let currentParagraph = [];
+    let paragraphStartIndex = -1;
+    
+    const addParagraph = () => {
+      if (currentParagraph.length > 0) {
+        keyPoints.push({
+          type: 'paragraph',
+          lineIndex: paragraphStartIndex,
+          content: currentParagraph.join('\n').trim()
+        });
+        currentParagraph = [];
+        paragraphStartIndex = -1;
+      }
+    };
     
     lines.forEach((line, index) => {
       // 处理代码块
       if (line.match(/^```/)) {
         if (!inCodeBlock) {
-          // 代码块开始
+          // 代码块开始前，先结束当前段落
+          addParagraph();
+          
           inCodeBlock = true;
           codeBlockStartIndex = index;
           codeBlockContent = [line];
@@ -834,6 +850,7 @@ const App = () => {
       
       // 识别标题
       if (line.match(/^#{1,6}\s/)) {
+        addParagraph(); // 结束当前段落
         keyPoints.push({
           type: 'heading',
           lineIndex: index,
@@ -841,8 +858,9 @@ const App = () => {
           level: line.match(/^(#{1,6})\s/)[1].length
         });
       }
-      // 识别列表开始
+      // 识别列表
       else if (line.match(/^(\*|-|\+|\d+\.)\s/)) {
+        addParagraph();
         keyPoints.push({
           type: 'list',
           lineIndex: index,
@@ -851,6 +869,7 @@ const App = () => {
       }
       // 识别引用块
       else if (line.match(/^>/)) {
+        addParagraph();
         keyPoints.push({
           type: 'blockquote',
           lineIndex: index,
@@ -858,27 +877,47 @@ const App = () => {
         });
       }
       // 识别水平线
-      else if (line.match(/^(---|\*\*\*|___)/)) {
+      else if (line.match(/^(---|\*\*\*|___)$/)) {
+        addParagraph();
         keyPoints.push({
           type: 'hr',
           lineIndex: index,
           content: line.trim()
         });
       }
-      // 识别段落开始（空行后的第一行文本）
-      else if (index > 0 && lines[index - 1].trim() === '' && line.trim() !== '') {
-        keyPoints.push({
-          type: 'paragraph',
-          lineIndex: index,
-          content: line.trim()
-        });
+      // 处理段落
+      else {
+        const trimmedLine = line.trim();
+        if (trimmedLine === '') {
+          // 空行结束当前段落
+          addParagraph();
+        } else {
+          // 如果还没有开始段落，记录起始位置
+          if (paragraphStartIndex === -1) {
+            paragraphStartIndex = index;
+          }
+          currentParagraph.push(trimmedLine);
+        }
       }
     });
+    
+    // 处理最后一个段落
+    addParagraph();
     
     return keyPoints;
   };
 
-  // 2. 改进 findPreviewElements 中的代码块匹配逻辑
+  // 改进清理 Markdown 文本的函数
+  const cleanMarkdownText = (text) => {
+    return text
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')    // 移除链接语法，保留链接文本
+      .replace(/`([^`]+)`/g, '$1')                 // 处理行内代码，保留代码内容
+      .replace(/[*_~]/g, '')                       // 移除加粗、斜体等标记
+      .replace(/\s+/g, ' ')                        // 统一空白字符
+      .trim();
+  };
+
+  // 改进段落匹配逻辑
   const findPreviewElements = (keyPoints) => {
     const previewElement = previewRef.current;
     if (!previewElement) {
@@ -901,7 +940,6 @@ const App = () => {
           break;
         case 'paragraph':
           selector = 'p';
-          // 记录原始内容，用于调试
           console.log('🔍 Looking for paragraph:', {
             original: keyPoint.content,
             cleaned: cleanMarkdownText(keyPoint.content)
@@ -928,42 +966,50 @@ const App = () => {
       
       const elements = Array.from(previewContent.querySelectorAll(selector));
       
-      // 对代码块使用特殊的匹配逻辑
-      if (keyPoint.type === 'codeblock') {
-        // 提取代码块的实际内容（去除 ``` 标记和语言标识）
-        const codeContent = keyPoint.content
-          .split('\n')
-          .slice(1, -1)  // 移除第一行和最后一行（``` 标记）
-          .join('\n')
-          .trim();
+      // 对段落使用改进的匹配逻辑
+      if (keyPoint.type === 'paragraph') {
+        const cleanedContent = cleanMarkdownText(keyPoint.content);
         
-        // 遍历所有代码块元素
         const matchedElements = elements.map(el => {
-          const elementText = el.textContent.trim();
-          const matchScore = calculateCodeBlockMatchScore(elementText, codeContent);
+          // 获取段落的纯文本内容，包括所有子元素
+          const elementText = Array.from(el.childNodes)
+            .map(node => {
+              // 如果是文本节点，直接使用其内容
+              if (node.nodeType === Node.TEXT_NODE) {
+                return node.textContent;
+              }
+              // 如果是行内代码元素，获取其文本内容
+              if (node.nodeName === 'CODE') {
+                return node.textContent;
+              }
+              // 其他元素，获取其文本内容
+              return node.textContent;
+            })
+            .join('')
+            .trim();
+
+          const matchScore = calculateMatchScore(elementText, cleanedContent);
           
-          console.log('📌 Comparing code block:', {
-            preview: elementText.slice(0, 50) + '...',
-            score: matchScore
+          console.log('📌 Comparing paragraph:', {
+            element: elementText.slice(0, 50) + (elementText.length > 50 ? '...' : ''),
+            score: matchScore,
+            hasInlineCode: el.querySelector('code') !== null
           });
           
           return { element: el, score: matchScore };
         });
         
-        // 按匹配度排序
         matchedElements.sort((a, b) => b.score - a.score);
         
         if (matchedElements[0]?.score > 0.7) {
-          console.log('✅ Found matching code block with score:', matchedElements[0].score);
-          const element = matchedElements[0].element;
-          // 如果匹配到的是 code 元素，返回其父元素 pre
+          console.log('✅ Found matching paragraph with score:', matchedElements[0].score);
           return {
             keyPoint,
-            element: element.tagName === 'CODE' ? element.parentElement : element
+            element: matchedElements[0].element
           };
         }
         
-        console.log('❌ No matching code block found');
+        console.log('❌ No matching paragraph found');
         return null;
       }
       
@@ -1013,22 +1059,6 @@ const App = () => {
     );
     
     return matchedLines.length / Math.max(lines1.length, lines2.length);
-  };
-
-  // 清理 Markdown 文本，移除 Markdown 语法标记
-  const cleanMarkdownText = (text) => {
-    return text
-      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // 移除链接语法，保留链接文本
-      .replace(/[*_`~]/g, '')                   // 移除加粗、斜体、代码等标记
-      .replace(/\s+/g, ' ')                     // 统一空白字符
-      .trim();
-  };
-
-  // 清理预览文本
-  const cleanPreviewText = (text) => {
-    return text
-      .replace(/\s+/g, ' ')  // 统一空白字符
-      .trim();
   };
 
   // 计算文本匹配度
