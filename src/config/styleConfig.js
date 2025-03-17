@@ -55,7 +55,7 @@ export const styleTemplates = {
     nameKey: "templateDefault",
     styles: {
       global: {
-        fontFamily: "sans-serif",
+        fontFamily: "'Microsoft YaHei', -apple-system, sans-serif",
         letterSpacing: "0px",
         lineHeight: "1.6",
         paragraphSpacing: "16px",
@@ -83,7 +83,7 @@ export const styleTemplates = {
     nameKey: "templateTech",
     styles: {
       global: {
-        fontFamily: "-apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Heiti SC', 'Source Han Sans SC', sans-serif",
+        fontFamily: "'Noto Sans SC', sans-serif",
         letterSpacing: "0.5px",
         lineHeight: "1.7",
         paragraphSpacing: "20px",
@@ -110,7 +110,7 @@ export const styleTemplates = {
     nameKey: "templateLiterary",
     styles: {
       global: {
-        fontFamily: "-apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Heiti SC', 'Source Han Sans SC', sans-serif",
+        fontFamily: "'Noto Serif SC', serif",
         letterSpacing: "1px",
         lineHeight: "1.8",
         paragraphSpacing: "24px",
@@ -137,7 +137,7 @@ export const styleTemplates = {
     nameKey: "templateBusiness",
     styles: {
       global: {
-        fontFamily: "-apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Heiti SC', 'Source Han Sans SC', sans-serif",
+        fontFamily: "STHeiti, sans-serif",
         letterSpacing: "0.3px",
         lineHeight: "1.6",
         paragraphSpacing: "20px",
@@ -164,7 +164,7 @@ export const styleTemplates = {
     nameKey: "templateMedia",
     styles: {
       global: {
-        fontFamily: "-apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Heiti SC', 'Source Han Sans SC', sans-serif",
+        fontFamily: "'ZCOOL XiaoWei', serif",
         letterSpacing: "0.5px",
         lineHeight: "1.8",
         paragraphSpacing: "24px",
