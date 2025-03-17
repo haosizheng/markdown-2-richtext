@@ -597,6 +597,24 @@ const App = () => {
         border-radius: 3px;
       }
 
+      /* 代码块特殊处理 */
+      .preview-content pre {
+        padding: 1em;
+        overflow-x: auto;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+
+      /* 代码块内的代码元素样式重置 */
+      .preview-content pre code {
+        background: none;
+        padding: 0;
+        font-size: inherit;
+        color: inherit;
+      }
+
       /* 标题样式 */
       .preview-content h1 {
         font-size: ${sizes.h1};
