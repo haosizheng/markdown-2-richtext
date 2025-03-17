@@ -1,9 +1,11 @@
+/* eslint-disable no-unused-vars */
 import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import styled, { createGlobalStyle } from 'styled-components';
 import { translations } from './translations'; // 修改导入路径
 import LanguageSwitch from './components/LanguageSwitch';
-import { defaultValues, headingSizePresets, styleTemplates } from './config/styleConfig';
+import { defaultValues, styleTemplates } from './config/styleConfig';
+/* eslint-enable no-unused-vars */
 
 // 修改全局样式的创建方式
 const GlobalStyle = createGlobalStyle`
@@ -48,52 +50,6 @@ const SectionTitle = styled.div`
   font-size: 18px;
   font-weight: 600;
   color: #2c3e50;
-`;
-
-// 开关按钮样式
-const Switch = styled.label`
-  position: relative;
-  display: inline-block;
-  width: 60px;
-  height: 34px;
-  
-  input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-  
-  span {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    transition: .4s;
-    border-radius: 34px;
-    
-    &:before {
-      position: absolute;
-      content: "";
-      height: 26px;
-      width: 26px;
-      left: 4px;
-      bottom: 4px;
-      background-color: white;
-      transition: .4s;
-      border-radius: 50%;
-    }
-  }
-  
-  input:checked + span {
-    background-color: #2196F3;
-  }
-  
-  input:checked + span:before {
-    transform: translateX(26px);
-  }
 `;
 
 // 编辑器容器样式
@@ -156,15 +112,6 @@ const PreviewContainer = styled.div`
     min-width: 0;
     box-sizing: border-box;
   }
-`;
-
-// 添加模式切换开关样式
-const ModeSwitch = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  color: #666;
 `;
 
 // 基础模式的样式编辑器容器
@@ -327,63 +274,13 @@ const Toast = styled.div`
   }
 `;
 
-// 添加回 defaultCSS 变量定义
+// 添加默认 CSS 常量
 const defaultCSS = `
-/* Styles in Preview;预览区域的样式 */
-.preview-content {
-  font-size: 16px;
-  line-height: 1.75;
-  color: inherit;
-}
-
-.preview-content h1 {
-  font-size: 24px;
-  font-weight: bold;
-  margin: 20px 0;
-  color: inherit;
-}
-
-.preview-content h2 {
-  font-size: 20px;
-  font-weight: bold;
-  margin: 16px 0;
-  color: inherit;
-}
-
-.preview-content p {
-  margin: 16px 0;
-}
-
-.preview-content ul, .preview-content ol {
-  padding-left: 28px;
-  margin: 16px 0;
-}
-
-.preview-content li {
-  margin: 8px 0;
-}
-
-.preview-content strong {
-  font-weight: bold;
-}
-
-.preview-content em {
-  font-style: italic;
-}
-
-.preview-content blockquote {
-  border-left: 4px solid #ccc;
-  margin: 16px 0;
-  padding-left: 16px;
-  color: #666;
-}
-
-.preview-content img {
-  display: block;
-  margin: 20px auto;
-  max-width: 100%;
-  height: auto;
-}
+  .preview-content {
+    font-family: SimSun, serif;
+    line-height: 1.6;
+    letter-spacing: 0px;
+  }
 `;
 
 // 创建一个新的按钮样式，用于标题栏中的复制按钮
@@ -483,7 +380,7 @@ const App = () => {
 `);
   const [css, setCSS] = useState(defaultCSS);
   const styleRef = useRef(null);
-  const [editorMode, setEditorMode] = useState('basic'); // 'basic' or 'advanced'
+  const [editorMode] = useState('basic');  // 如果只需要读取状态
   const [styleConfig, setStyleConfig] = useState({
     global: {
       fontFamily: "SimSun, serif",  // 修改这里为宋体
@@ -755,17 +652,6 @@ const App = () => {
 
   // 修改 handlePaste 函数
   const handlePaste = (e) => {
-    // 添加调试信息
-    console.log('=== Paste Event Debug Info ===');
-    console.log('Clipboard data types:', e.clipboardData.types);
-    console.log('HTML content:', e.clipboardData.getData('text/html'));
-    console.log('Plain text content:', e.clipboardData.getData('text/plain'));
-    console.log('Items:', Array.from(e.clipboardData.items).map(item => ({
-      type: item.type,
-      kind: item.kind
-    })));
-    
-    // 原有的图片处理逻辑
     const items = e.clipboardData.items;
     
     for (let i = 0; i < items.length; i++) {
