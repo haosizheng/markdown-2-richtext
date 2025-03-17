@@ -519,10 +519,52 @@ const App = () => {
     const previewContent = document.querySelector('.preview-content');
     if (previewContent) {
       try {
-        await navigator.clipboard.writeText(previewContent.innerHTML);
-        alert(t.copySuccess);
+        // 创建一个临时的可编辑div
+        const tempDiv = document.createElement('div');
+        tempDiv.contentEditable = true;
+        tempDiv.style.position = 'absolute';
+        tempDiv.style.left = '-9999px';
+        
+        // 复制原始节点，这样可以保留完整的样式和结构
+        const clonedContent = previewContent.cloneNode(true);
+        
+        // 将 h3、h4、h5、h6 转换为加粗文本
+        clonedContent.querySelectorAll('h3, h4, h5, h6').forEach(header => {
+          const strong = document.createElement('strong');
+          strong.textContent = header.textContent;
+          header.parentNode.replaceChild(strong, header);
+        });
+        
+        // 确保图片使用完整的 URL
+        clonedContent.querySelectorAll('img').forEach(img => {
+          if (img.alt && img.alt.startsWith('img-')) {
+            const image = images.find(i => i.id === img.alt);
+            if (image) {
+              img.src = image.url;
+            }
+          }
+        });
+        
+        tempDiv.appendChild(clonedContent);
+        document.body.appendChild(tempDiv);
+        
+        // 选择内容
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(tempDiv);
+        selection.removeAllRanges();
+        selection.addRange(range);
+        
+        document.execCommand('copy');
+        
+        document.body.removeChild(tempDiv);
+        selection.removeAllRanges();
+        
+        // 使用翻译文本
+        showToast(t.copySuccess, 'success');
       } catch (err) {
-        alert(t.copyError);
+        console.error('Copy error:', err);
+        showToast(t.copyError, 'error');
       }
     }
   };
@@ -679,6 +721,14 @@ const App = () => {
         margin: 20px auto;
         max-width: 100%;
         height: auto;
+      }
+
+      /* 删除线样式 */
+      .preview-content p del,
+      .preview-content p s {
+        text-decoration: line-through;
+        color: ${config.paragraph.color || defaultValues.paragraph.color};
+        opacity: 0.7;
       }
     `;
   };
@@ -907,12 +957,13 @@ const App = () => {
     return keyPoints;
   };
 
-  // 改进清理 Markdown 文本的函数
+  // 修改 cleanMarkdownText 函数，确保正确处理删除线语法
   const cleanMarkdownText = (text) => {
     return text
       .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')    // 移除链接语法，保留链接文本
       .replace(/`([^`]+)`/g, '$1')                 // 处理行内代码，保留代码内容
-      .replace(/[*_~]/g, '')                       // 移除加粗、斜体等标记
+      .replace(/~~([^~]+)~~/g, '$1')              // 处理删除线，保留文本内容
+      .replace(/[*_]/g, '')                        // 移除加粗、斜体标记
       .replace(/\s+/g, ' ')                        // 统一空白字符
       .trim();
   };
@@ -1293,7 +1344,13 @@ const App = () => {
                           }}
                         />
                       );
-                    }
+                    },
+                    del: ({node, ...props}) => (
+                      <del style={{
+                        textDecoration: 'line-through',
+                        opacity: '0.7'
+                      }} {...props} />
+                    )
                   }}
                 >
                   {markdown}
