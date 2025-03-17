@@ -433,13 +433,14 @@ const App = () => {
         clonedContent.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach((header, index) => {
           // 根据标题级别设置字号
           const getFontSize = (tagName) => {
+            // 使用与 headingSizePresets.medium 相同的尺寸
             switch(tagName) {
-              case 'H1': return '24px';
-              case 'H2': return '20px';
-              case 'H3': return '16px';
-              case 'H4': return '16px';
+              case 'H1': return '28px';  // 改为 28px
+              case 'H2': return '24px';  // 改为 24px
+              case 'H3': return '20px';  // 改为 20px
+              case 'H4': return '18px';  // 增加 H4 尺寸
               case 'H5': return '16px';
-              case 'H6': return '16px';
+              case 'H6': return '14px';
               default: return '16px';
             }
           };
@@ -548,39 +549,73 @@ const App = () => {
 
   // 3. 修改 generateCSS 函数
   const generateCSS = (config = styleConfig) => {
+    // 获取标题大小预设
+    const headingSizes = {
+      large: { h1: '32px', h2: '28px', h3: '24px' },
+      medium: { h1: '28px', h2: '24px', h3: '20px' },
+      small: { h1: '24px', h2: '20px', h3: '16px' }
+    };
+    
+    const sizes = headingSizes[config.global.headingSize] || headingSizes.medium;
+
     return `
       .preview-content {
-        font-family: ${config.global.fontFamily || defaultValues.global.fontFamily};
-        letter-spacing: ${config.global.letterSpacing || defaultValues.global.letterSpacing};
-        line-height: ${config.global.lineHeight || defaultValues.global.lineHeight};
+        font-family: ${config.global.fontFamily};
+        letter-spacing: ${config.global.letterSpacing};
+        line-height: ${config.global.lineHeight};
       }
 
-      /* 确保所有块级元素都应用行高设置 */
-      .preview-content h1,
-      .preview-content h2,
-      .preview-content h3,
-      .preview-content h4,
-      .preview-content h5,
-      .preview-content h6,
-      .preview-content p,
+      /* 段落样式 */
+      .preview-content p {
+        color: ${config.paragraph.color};
+        font-size: ${config.paragraph.fontSize};
+        margin-bottom: ${config.global.paragraphSpacing};
+      }
+
+      /* 列表样式 - 与段落保持一致 */
       .preview-content ul,
       .preview-content ol,
-      .preview-content li,
-      .preview-content blockquote,
+      .preview-content li {
+        color: ${config.paragraph.color};
+        font-size: ${config.paragraph.fontSize};
+      }
+
+      /* 加粗文本样式 */
+      .preview-content strong {
+        color: ${config.bold.color};
+      }
+
+      /* 代码块和行内代码样式统一 */
+      .preview-content code,
       .preview-content pre {
-        line-height: ${config.global.lineHeight || defaultValues.global.lineHeight};
+        color: ${config.code.color};
+        background-color: ${config.code.backgroundColor};
+        font-size: ${config.code.fontSize};
+        font-family: ${config.code.fontFamily};
+        padding: 0.2em 0.4em;
+        border-radius: 3px;
       }
 
       /* 标题样式 */
-      .preview-content h1, 
-      .preview-content h2,
-      .preview-content h3,
-      .preview-content h4,
-      .preview-content h5,
-      .preview-content h6 {
-        color: ${config.global.headingColor || defaultValues.global.headingColor};
-        text-align: ${config.global.headingAlign || defaultValues.global.headingAlign};
-        margin: ${config.global.paragraphSpacing || defaultValues.global.paragraphSpacing} 0;
+      .preview-content h1 {
+        font-size: ${sizes.h1};
+        color: ${config.global.headingColor};
+        text-align: ${config.global.headingAlign};
+        margin: ${config.global.paragraphSpacing} 0;
+      }
+
+      .preview-content h2 {
+        font-size: ${sizes.h2};
+        color: ${config.global.headingColor};
+        text-align: ${config.global.headingAlign};
+        margin: ${config.global.paragraphSpacing} 0;
+      }
+
+      .preview-content h3 {
+        font-size: ${sizes.h3};
+        color: ${config.global.headingColor};
+        text-align: ${config.global.headingAlign};
+        margin: ${config.global.paragraphSpacing} 0;
       }
 
       /* 引用块样式 */
