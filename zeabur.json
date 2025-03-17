@@ -1,0 +1,15 @@
+{
+  "build": {
+    "command": "cd markdown-editor && npm install && npm run build",
+    "output": "markdown-editor/build"
+  },
+  "routes": [
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/markdown-editor/(.*)",
+      "dest": "/markdown-editor/index.html"
+    }
+  ]
+}

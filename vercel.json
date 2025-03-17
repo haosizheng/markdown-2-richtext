@@ -1,0 +1,19 @@
+{
+  "rewrites": [
+    {
+      "source": "/markdown-editor/(.*)",
+      "destination": "/markdown-editor/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/markdown-editor/static/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ]
+}
