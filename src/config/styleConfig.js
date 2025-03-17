@@ -114,7 +114,7 @@ export const styleTemplates = {
         letterSpacing: "1px",
         lineHeight: "1.8",
         paragraphSpacing: "24px",
-        headingAlign: "center",
+        headingAlign: "left",
         headingColor: "#c0392b"
       },
       paragraph: { color: '#2c3e50', fontSize: '16px' },
