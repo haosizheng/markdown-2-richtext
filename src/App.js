@@ -430,31 +430,41 @@ const App = () => {
         const clonedContent = previewContent.cloneNode(true);
         
         // 处理标题，添加换行和样式
-        clonedContent.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach((header, index, headers) => {
+        clonedContent.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach((header, index) => {
+          // 根据标题级别设置字号
+          const getFontSize = (tagName) => {
+            switch(tagName) {
+              case 'H1': return '24px';
+              case 'H2': return '20px';
+              case 'H3': return '16px';
+              case 'H4': return '16px';
+              case 'H5': return '16px';
+              case 'H6': return '16px';
+              default: return '16px';
+            }
+          };
+
           const strong = document.createElement('strong');
           strong.textContent = header.textContent;
           strong.style.color = styleConfig.global.headingColor;
-          strong.style.fontSize = header.style.fontSize;
+          strong.style.fontSize = getFontSize(header.tagName);  // 使用标题级别对应的字号
           strong.style.letterSpacing = styleConfig.global.letterSpacing;
           strong.style.display = 'block';
           strong.style.textAlign = styleConfig.global.headingAlign;
-          strong.style.fontFamily = styleConfig.global.fontFamily; // 添加字体设置
+          strong.style.fontFamily = styleConfig.global.fontFamily;
           
           // 创建包装 div
           const wrapper = document.createElement('div');
           wrapper.style.textAlign = styleConfig.global.headingAlign;
-          wrapper.style.fontFamily = styleConfig.global.fontFamily; // 添加字体设置
+          wrapper.style.fontFamily = styleConfig.global.fontFamily;
           wrapper.style.margin = `${styleConfig.global.paragraphSpacing} 0`;
           
           // 创建额外的容器来确保样式被保留
           const container = document.createElement('div');
-          container.style.fontFamily = styleConfig.global.fontFamily; // 添加字体设置
+          container.style.fontFamily = styleConfig.global.fontFamily;
           container.style.textAlign = styleConfig.global.headingAlign;
           container.appendChild(strong);
           wrapper.appendChild(container);
-          
-          // 如果不是最后一个标题，添加换行
-      
           
           // 替换原始标题
           header.parentNode.replaceChild(wrapper, header);
