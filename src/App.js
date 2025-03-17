@@ -605,6 +605,7 @@ const App = () => {
         word-wrap: break-word;
         max-width: 100%;
         box-sizing: border-box;
+        margin-bottom: ${config.global.paragraphSpacing};  // 添加底部间距
       }
 
       /* 代码块内的代码元素样式重置 */
@@ -635,6 +636,13 @@ const App = () => {
         color: ${config.global.headingColor};
         text-align: ${config.global.headingAlign};
         margin: ${config.global.paragraphSpacing} 0;
+      }
+
+      /* 特别处理代码块和标题的组合 */
+      .preview-content pre + h1,
+      .preview-content pre + h2,
+      .preview-content pre + h3 {
+        margin-top: calc(${config.global.paragraphSpacing} * 2);  // 增加代码块和标题之间的间距
       }
 
       /* 引用块样式 */
