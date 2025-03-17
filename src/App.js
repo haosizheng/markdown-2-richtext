@@ -519,28 +519,30 @@ const App = () => {
     const previewContent = document.querySelector('.preview-content');
     if (previewContent) {
       try {
-        // 创建一个临时的可编辑div
         const tempDiv = document.createElement('div');
         tempDiv.contentEditable = true;
         tempDiv.style.position = 'absolute';
         tempDiv.style.left = '-9999px';
         
-        // 复制原始节点，这样可以保留完整的样式和结构
         const clonedContent = previewContent.cloneNode(true);
         
-        // 将 h3、h4、h5、h6 转换为加粗文本
+        // 处理标题
         clonedContent.querySelectorAll('h3, h4, h5, h6').forEach(header => {
           const strong = document.createElement('strong');
           strong.textContent = header.textContent;
           header.parentNode.replaceChild(strong, header);
         });
         
-        // 确保图片使用完整的 URL
+        // 处理图片 - 修改这部分
         clonedContent.querySelectorAll('img').forEach(img => {
           if (img.alt && img.alt.startsWith('img-')) {
             const image = images.find(i => i.id === img.alt);
             if (image) {
+              // 直接使用 Data URL，因为 image.url 已经是 Data URL 了
               img.src = image.url;
+              // 设置合适的样式
+              img.style.maxWidth = '100%';
+              img.style.height = 'auto';
             }
           }
         });
@@ -548,7 +550,6 @@ const App = () => {
         tempDiv.appendChild(clonedContent);
         document.body.appendChild(tempDiv);
         
-        // 选择内容
         const selection = window.getSelection();
         const range = document.createRange();
         range.selectNodeContents(tempDiv);
@@ -560,7 +561,6 @@ const App = () => {
         document.body.removeChild(tempDiv);
         selection.removeAllRanges();
         
-        // 使用翻译文本
         showToast(t.copySuccess, 'success');
       } catch (err) {
         console.error('Copy error:', err);
