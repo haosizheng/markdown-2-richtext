@@ -408,7 +408,7 @@ const App = () => {
     blockquote: {
       color: '#666666',
       fontSize: '16px',
-      borderColor: '#ccc',
+      borderColor: '#cccccc',
       backgroundColor: '#f9f9f9'
     },
     code: {
