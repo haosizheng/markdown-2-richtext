@@ -68,6 +68,9 @@ export const translations = {
     templateCleanMinimal: 'Clean Minimal (Black)',
     templateModernMedia: 'Modern Media (Pink)',
     templateProfessionalNote: 'Professional Note (Blue Gray)',
+    saveAsImage: 'Save as Image',
+    imageSaved: 'Image saved successfully!',
+    imageSaveError: 'Failed to save image, please try again',
   },
   zh: {
     styleTemplate: '样式模板',
@@ -138,5 +141,8 @@ export const translations = {
     templateCleanMinimal: '清爽简约（黑）',
     templateModernMedia: '现代媒体（粉）',
     templateProfessionalNote: '专业笔记（蓝灰）',
+    saveAsImage: '保存为图片',
+    imageSaved: '图片保存成功！',
+    imageSaveError: '图片保存失败，请重试',
   }
 }; 

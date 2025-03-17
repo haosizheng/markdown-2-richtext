@@ -5,6 +5,7 @@ import styled, { createGlobalStyle } from 'styled-components';
 import { translations } from './translations'; // 修改导入路径
 import LanguageSwitch from './components/LanguageSwitch';
 import { defaultValues, styleTemplates } from './config/styleConfig';
+import html2canvas from 'html2canvas';
 /* eslint-enable no-unused-vars */
 
 // 修改全局样式的创建方式
@@ -336,6 +337,11 @@ const TemplateSelect = styled.select`
     border-color: #1890ff;
     box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
   }
+`;
+
+// 添加保存图片按钮样式
+const HeaderButton = styled(HeaderCopyButton)`
+  margin-left: 10px;
 `;
 
 // App 组件
@@ -1146,6 +1152,61 @@ const App = () => {
     }
   };
 
+  // 添加保存为图片的函数
+  const handleSaveAsImage = async () => {
+    const previewContent = previewRef.current.querySelector('.preview-content');
+    
+    try {
+      // 创建一个临时的包装容器
+      const tempWrapper = document.createElement('div');
+      tempWrapper.style.padding = '20px';
+      tempWrapper.style.backgroundColor = '#ffffff';
+      tempWrapper.style.position = 'absolute';
+      tempWrapper.style.left = '-9999px';
+      tempWrapper.style.width = '375px';  // 设置为标准手机屏幕宽度
+      tempWrapper.style.boxSizing = 'border-box';
+      document.body.appendChild(tempWrapper);
+      
+      // 克隆预览内容到临时容器
+      const contentClone = previewContent.cloneNode(true);
+      contentClone.style.width = '100%';
+      contentClone.style.maxWidth = '100%';
+      contentClone.style.margin = '0 auto';
+      contentClone.style.wordWrap = 'break-word';  // 确保长文本会自动换行
+      
+      // 调整图片大小
+      contentClone.querySelectorAll('img').forEach(img => {
+        img.style.maxWidth = '100%';
+        img.style.height = 'auto';
+        img.style.margin = '10px auto';
+      });
+      
+      tempWrapper.appendChild(contentClone);
+      
+      const canvas = await html2canvas(tempWrapper, {
+        backgroundColor: '#ffffff',
+        scale: 2, // 提高图片质量
+        useCORS: true, // 允许加载跨域图片
+        logging: false,
+        width: 375, // 确保canvas宽度与容器一致
+      });
+
+      // 清理临时元素
+      document.body.removeChild(tempWrapper);
+
+      // 创建下载链接
+      const link = document.createElement('a');
+      link.download = 'markdown-preview.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      
+      showToast(t.imageSaved, 'success');
+    } catch (error) {
+      console.error('Error saving image:', error);
+      showToast(t.imageSaveError, 'error');
+    }
+  };
+
   return (
     <>
       <GlobalStyle />
@@ -1167,13 +1228,23 @@ const App = () => {
           <EditorContainer>
             <SectionTitle>
               {t.preview}
-              <HeaderCopyButton onClick={handleCopy}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                </svg>
-                {t.copyAll}
-              </HeaderCopyButton>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <HeaderButton onClick={handleSaveAsImage}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                  </svg>
+                  {t.saveAsImage}
+                </HeaderButton>
+                <HeaderButton onClick={handleCopy}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  {t.copyAll}
+                </HeaderButton>
+              </div>
             </SectionTitle>
             <PreviewContainer 
               ref={previewRef}
