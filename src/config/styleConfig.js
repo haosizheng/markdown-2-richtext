@@ -20,7 +20,7 @@ export const headingSizePresets = {
 // 默认值配置
 export const defaultValues = {
   global: {
-    fontFamily: "sans-serif",
+    fontFamily: "SimSun, serif",
     letterSpacing: '0px',
     lineHeight: '1.6',
     paragraphSpacing: '16px',
@@ -55,7 +55,7 @@ export const styleTemplates = {
     nameKey: "templateDefault",
     styles: {
       global: {
-        fontFamily: "'Microsoft YaHei', -apple-system, sans-serif",
+        fontFamily: "SimSun, serif",
         letterSpacing: "0px",
         lineHeight: "1.6",
         paragraphSpacing: "16px",

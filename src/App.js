@@ -486,7 +486,7 @@ const App = () => {
   const [editorMode, setEditorMode] = useState('basic'); // 'basic' or 'advanced'
   const [styleConfig, setStyleConfig] = useState({
     global: {
-      fontFamily: "-apple-system, 'Microsoft YaHei'",
+      fontFamily: "SimSun, serif",  // 修改这里为宋体
       letterSpacing: "0px",
       lineHeight: "1.6",
       paragraphSpacing: "16px",
@@ -755,6 +755,17 @@ const App = () => {
 
   // 修改 handlePaste 函数
   const handlePaste = (e) => {
+    // 添加调试信息
+    console.log('=== Paste Event Debug Info ===');
+    console.log('Clipboard data types:', e.clipboardData.types);
+    console.log('HTML content:', e.clipboardData.getData('text/html'));
+    console.log('Plain text content:', e.clipboardData.getData('text/plain'));
+    console.log('Items:', Array.from(e.clipboardData.items).map(item => ({
+      type: item.type,
+      kind: item.kind
+    })));
+    
+    // 原有的图片处理逻辑
     const items = e.clipboardData.items;
     
     for (let i = 0; i < items.length; i++) {
