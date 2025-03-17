@@ -795,12 +795,43 @@ const App = () => {
     }
   };
 
-  // 1. 首先，我们需要识别 Markdown 中的关键点
+  // 1. 改进 getMarkdownKeyPoints 中的代码块识别
   const getMarkdownKeyPoints = (markdown) => {
     const keyPoints = [];
     const lines = markdown.split('\n');
+    let inCodeBlock = false;
+    let codeBlockContent = [];
+    let codeBlockStartIndex = -1;
     
     lines.forEach((line, index) => {
+      // 处理代码块
+      if (line.match(/^```/)) {
+        if (!inCodeBlock) {
+          // 代码块开始
+          inCodeBlock = true;
+          codeBlockStartIndex = index;
+          codeBlockContent = [line];
+        } else {
+          // 代码块结束
+          inCodeBlock = false;
+          codeBlockContent.push(line);
+          keyPoints.push({
+            type: 'codeblock',
+            lineIndex: codeBlockStartIndex,
+            content: codeBlockContent.join('\n'),
+            endIndex: index
+          });
+          codeBlockContent = [];
+        }
+        return;
+      }
+      
+      // 如果在代码块内，收集内容
+      if (inCodeBlock) {
+        codeBlockContent.push(line);
+        return;
+      }
+      
       // 识别标题
       if (line.match(/^#{1,6}\s/)) {
         keyPoints.push({
@@ -814,14 +845,6 @@ const App = () => {
       else if (line.match(/^(\*|-|\+|\d+\.)\s/)) {
         keyPoints.push({
           type: 'list',
-          lineIndex: index,
-          content: line.trim()
-        });
-      }
-      // 识别代码块开始
-      else if (line.match(/^```/)) {
-        keyPoints.push({
-          type: 'codeblock',
           lineIndex: index,
           content: line.trim()
         });
@@ -855,13 +878,19 @@ const App = () => {
     return keyPoints;
   };
 
-  // 2. 在预览窗口中找到对应的 DOM 元素
+  // 2. 改进 findPreviewElements 中的代码块匹配逻辑
   const findPreviewElements = (keyPoints) => {
     const previewElement = previewRef.current;
-    if (!previewElement) return [];
+    if (!previewElement) {
+      console.log('❌ Preview element not found');
+      return [];
+    }
     
     const previewContent = previewElement.querySelector('.preview-content');
-    if (!previewContent) return [];
+    if (!previewContent) {
+      console.log('❌ Preview content not found');
+      return [];
+    }
     
     return keyPoints.map(keyPoint => {
       let selector;
@@ -870,11 +899,22 @@ const App = () => {
         case 'heading':
           selector = `h${keyPoint.level}`;
           break;
+        case 'paragraph':
+          selector = 'p';
+          // 记录原始内容，用于调试
+          console.log('🔍 Looking for paragraph:', {
+            original: keyPoint.content,
+            cleaned: cleanMarkdownText(keyPoint.content)
+          });
+          break;
         case 'list':
           selector = keyPoint.content.match(/^\d+\./) ? 'ol > li' : 'ul > li';
           break;
         case 'codeblock':
-          selector = 'pre > code';
+          selector = 'pre code, pre';
+          console.log('🔍 Looking for code block:', {
+            content: keyPoint.content.slice(0, 100) + '...'
+          });
           break;
         case 'blockquote':
           selector = 'blockquote';
@@ -882,29 +922,137 @@ const App = () => {
         case 'hr':
           selector = 'hr';
           break;
-        case 'paragraph':
-          selector = 'p';
-          break;
         default:
           return null;
       }
       
-      // 查找所有匹配的元素
       const elements = Array.from(previewContent.querySelectorAll(selector));
       
-      // 尝试通过内容匹配找到正确的元素
-      // 这里使用简化的匹配逻辑，实际应用中可能需要更复杂的匹配算法
+      // 对代码块使用特殊的匹配逻辑
+      if (keyPoint.type === 'codeblock') {
+        // 提取代码块的实际内容（去除 ``` 标记和语言标识）
+        const codeContent = keyPoint.content
+          .split('\n')
+          .slice(1, -1)  // 移除第一行和最后一行（``` 标记）
+          .join('\n')
+          .trim();
+        
+        // 遍历所有代码块元素
+        const matchedElements = elements.map(el => {
+          const elementText = el.textContent.trim();
+          const matchScore = calculateCodeBlockMatchScore(elementText, codeContent);
+          
+          console.log('📌 Comparing code block:', {
+            preview: elementText.slice(0, 50) + '...',
+            score: matchScore
+          });
+          
+          return { element: el, score: matchScore };
+        });
+        
+        // 按匹配度排序
+        matchedElements.sort((a, b) => b.score - a.score);
+        
+        if (matchedElements[0]?.score > 0.7) {
+          console.log('✅ Found matching code block with score:', matchedElements[0].score);
+          const element = matchedElements[0].element;
+          // 如果匹配到的是 code 元素，返回其父元素 pre
+          return {
+            keyPoint,
+            element: element.tagName === 'CODE' ? element.parentElement : element
+          };
+        }
+        
+        console.log('❌ No matching code block found');
+        return null;
+      }
+      
+      // 其他类型的匹配逻辑保持不变
       const matchedElement = elements.find(el => {
         const elementText = el.textContent.trim();
         const keyPointContent = keyPoint.content.replace(/^[#>*\-+\d.`\s]+/, '').trim();
         return elementText.includes(keyPointContent) || keyPointContent.includes(elementText);
       });
       
-      return {
-        keyPoint,
-        element: matchedElement || elements[0] // 如果找不到匹配的，使用第一个元素
-      };
-    }).filter(item => item.element); // 过滤掉没有找到对应元素的项
+      return matchedElement ? { keyPoint, element: matchedElement } : null;
+    }).filter(item => item !== null);
+  };
+
+  // 3. 添加专门的代码块匹配分数计算函数
+  const calculateCodeBlockMatchScore = (text1, text2) => {
+    // 标准化代码文本
+    const normalizeCodeText = (text) => {
+      return text
+        .replace(/\s+/g, ' ')  // 统一空白字符
+        .trim();
+    };
+    
+    text1 = normalizeCodeText(text1);
+    text2 = normalizeCodeText(text2);
+    
+    // 完全匹配
+    if (text1 === text2) return 1;
+    
+    // 计算行匹配
+    const lines1 = text1.split('\n');
+    const lines2 = text2.split('\n');
+    
+    // 如果行数差异太大，降低匹配分数
+    if (Math.abs(lines1.length - lines2.length) > 2) {
+      return 0.5;
+    }
+    
+    // 计算每行的匹配度
+    const matchedLines = lines1.filter(line1 => 
+      lines2.some(line2 => {
+        const normalizedLine1 = line1.trim();
+        const normalizedLine2 = line2.trim();
+        return normalizedLine1.includes(normalizedLine2) || 
+               normalizedLine2.includes(normalizedLine1);
+      })
+    );
+    
+    return matchedLines.length / Math.max(lines1.length, lines2.length);
+  };
+
+  // 清理 Markdown 文本，移除 Markdown 语法标记
+  const cleanMarkdownText = (text) => {
+    return text
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // 移除链接语法，保留链接文本
+      .replace(/[*_`~]/g, '')                   // 移除加粗、斜体、代码等标记
+      .replace(/\s+/g, ' ')                     // 统一空白字符
+      .trim();
+  };
+
+  // 清理预览文本
+  const cleanPreviewText = (text) => {
+    return text
+      .replace(/\s+/g, ' ')  // 统一空白字符
+      .trim();
+  };
+
+  // 计算文本匹配度
+  const calculateMatchScore = (text1, text2) => {
+    // 转换为小写进行比较
+    text1 = text1.toLowerCase();
+    text2 = text2.toLowerCase();
+    
+    // 完全匹配
+    if (text1 === text2) return 1;
+    
+    // 一个文本完全包含另一个
+    if (text1.includes(text2)) return 0.9;
+    if (text2.includes(text1)) return 0.9;
+    
+    // 计算共同单词数
+    const words1 = text1.split(/\s+/);
+    const words2 = text2.split(/\s+/);
+    
+    const commonWords = words1.filter(word => 
+      words2.some(w2 => w2.includes(word) || word.includes(w2))
+    );
+    
+    return commonWords.length / Math.max(words1.length, words2.length);
   };
 
   // 修改同步滚动函数，只保留从输入框到预览框的同步
