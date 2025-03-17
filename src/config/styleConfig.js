@@ -186,5 +186,191 @@ export const styleTemplates = {
         fontFamily: "'Monaco', monospace"
       }
     }
+  },
+  modernMinimal: {
+    nameKey: "templateModernMinimal",
+    styles: {
+      global: {
+        fontFamily: "'Roboto', 'Noto Sans SC', sans-serif",
+        letterSpacing: "0.2px",
+        lineHeight: "1.5",
+        paragraphSpacing: "20px",
+        headingAlign: "left",
+        headingColor: "#2d3436",
+        headingSize: "medium"
+      },
+      paragraph: { 
+        color: '#4a4a4a', 
+        fontSize: '15px',
+        textShadow: '0.5px 0.5px 1px rgba(0,0,0,0.05)' 
+      },
+      bold: { 
+        color: '#2d3436',
+        fontWeight: '700' 
+      },
+      blockquote: {
+        color: '#666666',
+        fontSize: '15px',
+        borderColor: '#e0e0e0',
+        backgroundColor: '#ffffff',
+        borderLeft: '4px solid #e0e0e0',
+        padding: '12px 20px'
+      },
+      code: {
+        color: '#3d3d3d',
+        fontSize: '13px',
+        backgroundColor: '#f8f9fa',
+        fontFamily: "'Fira Code', 'Monaco', monospace",
+        borderRadius: '4px'
+      }
+    }
+  },
+  softElegance: {
+    nameKey: "templateSoftElegance",
+    styles: {
+      global: {
+        fontFamily: "'Lora', 'Noto Serif SC', serif",
+        letterSpacing: "0.3px",
+        lineHeight: "1.8",
+        paragraphSpacing: "24px",
+        headingAlign: "center",
+        headingColor: "#6c5b7b",
+        headingSize: "large"
+      },
+      paragraph: { 
+        color: '#4a4a4a',
+        fontSize: '16px',
+        textIndent: '2em' 
+      },
+      bold: { 
+        color: '#6c5b7b',
+        fontStyle: 'italic' 
+      },
+      blockquote: {
+        color: '#7a7a7a',
+        fontSize: '16px',
+        borderColor: '#e6d0de',
+        backgroundColor: '#fcf8fb',
+        fontFamily: "'Playfair Display', 'Noto Serif SC', serif"
+      },
+      code: {
+        color: '#8a4b7c',
+        fontSize: '14px',
+        backgroundColor: '#f9f2f7',
+        fontFamily: "'Courier Prime', 'Monaco', monospace",
+        border: '1px solid #f0d8e8'
+      }
+    }
+  },
+  darkMatrix: {
+    nameKey: "templateDarkMatrix",
+    styles: {
+      global: {
+        fontFamily: "'Inter', 'Noto Sans SC', sans-serif",
+        letterSpacing: "0.1px",
+        lineHeight: "1.6",
+        paragraphSpacing: "18px",
+        headingAlign: "left",
+        headingColor: "#64ffda",
+        backgroundColor: "#1a1a1a"
+      },
+      paragraph: { 
+        color: '#b0b0b0',
+        fontSize: '14px',
+        textShadow: '0 0 2px rgba(100,255,218,0.1)' 
+      },
+      bold: { 
+        color: '#64ffda',
+        textShadow: '0 0 4px rgba(100,255,218,0.3)' 
+      },
+      blockquote: {
+        color: '#888888',
+        fontSize: '14px',
+        borderColor: '#64ffda',
+        backgroundColor: '#252525',
+        borderLeft: '3px solid'
+      },
+      code: {
+        color: '#64ffda',
+        fontSize: '13px',
+        backgroundColor: '#2d2d2d',
+        fontFamily: "'JetBrains Mono', 'Monaco', monospace",
+        border: '1px solid #3d3d3d'
+      }
+    }
+  },
+  natureInspired: {
+    nameKey: "templateNatureInspired",
+    styles: {
+      global: {
+        fontFamily: "'Open Sans', 'Noto Sans SC', sans-serif",
+        letterSpacing: "0.4px",
+        lineHeight: "1.7",
+        paragraphSpacing: "22px",
+        headingAlign: "left",
+        headingColor: "#2e7d32",
+        headingSize: "medium"
+      },
+      paragraph: { 
+        color: '#3d3d3d',
+        fontSize: '15px',
+        lineHeight: '1.8' 
+      },
+      bold: { 
+        color: '#2e7d32',
+        textDecoration: 'underline dotted' 
+      },
+      blockquote: {
+        color: '#558b2f',
+        fontSize: '15px',
+        borderColor: '#a5d6a7',
+        backgroundColor: '#f1f8e9',
+        fontStyle: 'italic'
+      },
+      code: {
+        color: '#1b5e20',
+        fontSize: '14px',
+        backgroundColor: '#e8f5e9',
+        fontFamily: "'Source Code Pro', 'Monaco', monospace",
+        boxShadow: '1px 1px 3px rgba(0,0,0,0.1)'
+      }
+    }
+  },
+  vintageRetro: {
+    nameKey: "templateVintageRetro",
+    styles: {
+      global: {
+        fontFamily: "'Playfair Display', 'Noto Serif SC', serif",
+        letterSpacing: "0.5px",
+        lineHeight: "1.6",
+        paragraphSpacing: "20px",
+        headingAlign: "right",
+        headingColor: "#d35400",
+        headingSize: "medium"
+      },
+      paragraph: { 
+        color: '#4a3123',
+        fontSize: '15px',
+        textAlign: 'justify' 
+      },
+      bold: { 
+        color: '#d35400',
+        textShadow: '1px 1px 2px rgba(211,84,0,0.2)' 
+      },
+      blockquote: {
+        color: '#8d6e63',
+        fontSize: '15px',
+        borderColor: '#d35400',
+        backgroundColor: '#fff3e0',
+        fontFamily: "'Cinzel', 'Noto Serif SC', serif"
+      },
+      code: {
+        color: '#6d4c41',
+        fontSize: '14px',
+        backgroundColor: '#f5e6d3',
+        fontFamily: "'Cutive Mono', 'Monaco', monospace",
+        border: '1px dashed #d35400'
+      }
+    }
   }
 }; 

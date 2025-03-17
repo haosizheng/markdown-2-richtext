@@ -43,6 +43,11 @@ export const translations = {
     templateLiterary: 'Literary',
     templateBusiness: 'Business',
     templateMedia: 'New Media',
+    templateModernMinimal: "Modern Minimal",
+    templateSoftElegance: "Soft Elegance",
+    templateDarkMatrix: "Dark Matrix",
+    templateNatureInspired: "Nature Inspired",
+    templateVintageRetro: "Vintage Retro",
   },
   zh: {
     styleTemplate: '样式模板',
@@ -88,5 +93,10 @@ export const translations = {
     templateLiterary: '文艺',
     templateBusiness: '商务',
     templateMedia: '新媒体',
+    templateModernMinimal: "现代简约",
+    templateSoftElegance: "优雅柔和",
+    templateDarkMatrix: "黑客矩阵",
+    templateNatureInspired: "自然灵感",
+    templateVintageRetro: "复古风情",
   }
 }; 
