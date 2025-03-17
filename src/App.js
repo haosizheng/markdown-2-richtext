@@ -1293,12 +1293,9 @@ const App = () => {
                         <option value="serif">{t.serif}</option>
                       </optgroup>
                       <optgroup label={t.otherFonts}>
-                        <option value="SimSun, serif">{t.simsun}</option>
-                        <option value="STHeiti, sans-serif">{t.stheiti}</option>
-                        <option value="'Noto Sans SC', sans-serif">Noto Sans SC</option>
-                        <option value="'Noto Serif SC', serif">Noto Serif SC</option>
-                        <option value="'ZCOOL XiaoWei', serif">ZCOOL XiaoWei</option>
-                        <option value="'ZCOOL QingKe HuangYou', sans-serif">ZCOOL QingKe HuangYou</option>
+                        <option value="'Noto Sans SC', sans-serif">{t.notoSansSC}</option>
+                        <option value="'Noto Serif SC', serif">{t.notoSerifSC}</option>
+                        <option value="'Open Sans', sans-serif">{t.openSans}</option>
                       </optgroup>
                     </Select>
                   </StyleRow>
