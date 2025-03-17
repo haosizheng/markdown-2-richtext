@@ -643,7 +643,36 @@ const App = () => {
         margin: ${config.global.paragraphSpacing || defaultValues.global.paragraphSpacing} 0;
       }
 
-      /* 其他样式保持不变... */
+      /* 引用块样式 */
+      .preview-content blockquote {
+        color: ${config.blockquote.color || defaultValues.blockquote.color};
+        font-size: ${config.blockquote.fontSize || defaultValues.blockquote.fontSize};
+        border-left: 4px solid ${config.blockquote.borderColor || defaultValues.blockquote.borderColor};
+        background-color: ${config.blockquote.backgroundColor || defaultValues.blockquote.backgroundColor};
+        padding: 1em;
+        margin: ${config.global.paragraphSpacing || defaultValues.global.paragraphSpacing} 0;
+        padding-left: 20px;
+        position: relative;
+      }
+
+      /* 引用块左侧小方块 */
+      .preview-content blockquote::before {
+        content: '';
+        position: absolute;
+        left: -4px;
+        top: 0;
+        width: 4px;
+        height: 100%;
+        background-color: ${config.blockquote.borderColor || defaultValues.blockquote.borderColor};
+      }
+
+      /* 确保引用块内的段落继承引用块样式 */
+      .preview-content blockquote p {
+        color: inherit;
+        font-size: inherit;
+        margin: 0;
+        line-height: inherit;
+      }
     `;
   };
 
@@ -736,6 +765,10 @@ const App = () => {
         const reader = new FileReader();
         
         reader.onload = (event) => {
+          // 保存当前预览框的滚动位置
+          const previewContainer = document.querySelector('.preview-content');
+          const scrollTop = previewContainer ? previewContainer.parentElement.scrollTop : 0;
+          
           const imageUrl = event.target.result;
           const imageId = `img-${Date.now()}`;
           
@@ -751,6 +784,13 @@ const App = () => {
           const imageMarkdown = `\n![${imageId}](${imageId})\n`;
           
           setMarkdown(textBefore + imageMarkdown + textAfter);
+          
+          // 在下一个渲染周期恢复滚动位置
+          requestAnimationFrame(() => {
+            if (previewContainer && previewContainer.parentElement) {
+              previewContainer.parentElement.scrollTop = scrollTop;
+            }
+          });
         };
         
         reader.readAsDataURL(blob);
