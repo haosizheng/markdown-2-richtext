@@ -275,10 +275,10 @@ const Toast = styled.div`
   }
 `;
 
-// 添加默认 CSS 常量
+// 修改默认 CSS 常量
 const defaultCSS = `
   .preview-content {
-    font-family: SimSun, serif;
+    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
     line-height: 1.6;
     letter-spacing: 0px;
   }
@@ -360,7 +360,22 @@ const App = () => {
     setTimeout(() => setToast(null), 3000);
   };
 
-  const [markdown, setMarkdown] = useState(`# Welcome to FelxMark
+  const [markdown, setMarkdown] = useState(`# 欢迎来到古希腊掌管排版的神
+
+### 使用方法
+
+1. 在左侧输入面板中：粘贴你的 Markdown 内容
+2. 在中间预览面板中：查看**富文本格式化**结果
+3. 在右侧格式编辑器中：选择模版或者自定义样式
+4. 使用"复制"按钮一键复制富文本到支持富文本的编辑器中
+5. 使用"保存为图片"按钮一键保存为图片
+6. 图片目前仅支持逐个粘贴
+
+> 尝试粘贴你的笔记到左侧输入面板，让古希腊掌管排版的神**一秒帮你完成排版！**
+
+---
+
+# Welcome to MarkFlex
 
 ### How to Use
 
@@ -369,33 +384,19 @@ const App = () => {
 3. Customize styles in the **Format Editor**
 4. Copy the result with the "Copy All" button
 
-> Try pasting an image or formatting some text to see FlexMark in action!
-
----
-
-# 
-
-### 使用方法
-
-1. 在左侧面板中输入 Markdown
-2. 在预览面板中查看**富文本格式化**结果
-3. 在格式编辑器中自定义样式
-4. 使用"Copy All"按钮一键复制富文本到支持富文本的编辑器中
-
-> 尝试粘贴图片或格式化一些文本，体验 FlexMark 的强大功能！
-`);
+> Try pasting an image or formatting some text to see FlexMark in action!`);
   const [css, setCSS] = useState(defaultCSS);
   const styleRef = useRef(null);
   const [editorMode] = useState('basic');  // 如果只需要读取状态
   const [styleConfig, setStyleConfig] = useState({
     global: {
-      fontFamily: "SimSun, serif",  // 修改这里为宋体
+      fontFamily: "'PingFang SC', 'Microsoft YaHei', sans-serif",
       letterSpacing: "0px",
       lineHeight: "1.6",
       paragraphSpacing: "16px",
       headingAlign: "left",
-      headingColor: "#000000",    // 新增：统一的标题颜色
-      headingSize: "medium"       // 新增：标题大小预设
+      headingColor: "#000000",
+      headingSize: "medium"
     },
     paragraph: {
       color: '#000000',
@@ -412,7 +413,7 @@ const App = () => {
     },
     code: {
       color: '#333333',
-      fontSize: '14px',
+      fontSize: '16px',
       backgroundColor: '#f5f5f5',
       fontFamily: "'Monaco', monospace"
     }
@@ -591,7 +592,7 @@ const App = () => {
         color: ${config.code.color};
         background-color: ${config.code.backgroundColor};
         font-size: ${config.code.fontSize};
-        font-family: ${config.code.fontFamily};
+        font-family: ${config.global.fontFamily};  // 使用全局字体设置
         padding: 0.2em 0.4em;
         border-radius: 3px;
       }
@@ -1252,6 +1253,12 @@ const App = () => {
     }
   };
 
+  // 在组件加载时立即生成并应用 CSS
+  useEffect(() => {
+    const initialCSS = generateCSS(styleConfig);
+    updateStyle(initialCSS);
+  }, []);
+
   return (
     <>
       <GlobalStyle />
@@ -1610,18 +1617,6 @@ const App = () => {
                 {/* 7. 代码块设置 */}
                 <StyleSection>
                   <StyleTitle>{t.code}</StyleTitle>
-                  <StyleRow>
-                    <StyleLabel>{t.fontFamily}</StyleLabel>
-                    <Select
-                      value={styleConfig.code.fontFamily}
-                      onChange={(e) => handleStyleChange('code', 'fontFamily', e.target.value)}
-                    >
-                      <option value="'Monaco', monospace">Monaco</option>
-                      <option value="'Fira Code', monospace">Fira Code</option>
-                      <option value="'Consolas', monospace">Consolas</option>
-                      <option value="'Source Code Pro', monospace">Source Code Pro</option>
-                    </Select>
-                  </StyleRow>
                   <StyleRow>
                     <StyleLabel>{t.color}</StyleLabel>
                     <ColorPickerInput>
