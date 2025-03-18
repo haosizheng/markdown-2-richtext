@@ -488,10 +488,21 @@ const App = () => {
         
         // 处理引用块
         clonedContent.querySelectorAll('blockquote').forEach(quote => {
+          // 保持原有的引用块样式
           quote.style.color = styleConfig.blockquote.color;
           quote.style.fontSize = styleConfig.blockquote.fontSize;
-          quote.style.borderColor = styleConfig.blockquote.borderColor;
+          quote.style.borderLeft = `4px solid ${styleConfig.blockquote.borderColor}`;
           quote.style.backgroundColor = styleConfig.blockquote.backgroundColor;
+          quote.style.padding = '1em';
+          quote.style.margin = `${styleConfig.global.paragraphSpacing} 0`;
+
+          // 处理引用块内的段落
+          quote.querySelectorAll('p').forEach(p => {
+            p.style.color = styleConfig.blockquote.color;
+            p.style.fontSize = styleConfig.blockquote.fontSize;
+            p.style.margin = '0';
+            p.style.lineHeight = styleConfig.global.lineHeight;
+          });
         });
         
         // 处理图片
@@ -563,7 +574,17 @@ const App = () => {
       .preview-content {
         font-family: ${config.global.fontFamily};
         letter-spacing: ${config.global.letterSpacing};
-        line-height: ${config.global.lineHeight};
+line-height: ${config.global.lineHeight} !important;  // 强制应用行高
+      }
+
+      /* 确保所有文本元素都继承行高 */
+      .preview-content p,
+      .preview-content div,
+      .preview-content span,
+      .preview-content li,
+      .preview-content blockquote,
+      .preview-content pre {
+        line-height: inherit !important;  // 强制继承行高
       }
 
       /* 段落样式 */
