@@ -69,12 +69,12 @@ export const styleTemplates = {
         color: '#666666',
         fontSize: '15px',
         borderColor: '#dcdcdc',
-        backgroundColor: '#f8f9fa'
+        backgroundColor: '#eef1f5'
       },
       code: {
         color: '#333333',
         fontSize: '14px',
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#eef1f5',
         fontFamily: "'Microsoft YaHei', monospace"
       }
     }
@@ -98,12 +98,12 @@ export const styleTemplates = {
         color: '#555555',
         fontSize: '14px',
         borderColor: '#0066cc',
-        backgroundColor: '#f8f9fa'
+        backgroundColor: '#e6f0fa'
       },
       code: {
         color: '#0066cc',
         fontSize: '14px',
-        backgroundColor: '#f5f7fa',
+        backgroundColor: '#e6f0fa',
         fontFamily: "'Microsoft YaHei', monospace"
       }
     }
@@ -127,12 +127,12 @@ export const styleTemplates = {
         color: '#666666',
         fontSize: '16px',
         borderColor: '#d4b8b8',
-        backgroundColor: '#faf6f6'
+        backgroundColor: '#f0e8e8'
       },
       code: {
         color: '#6b4c4c',
         fontSize: '15px',
-        backgroundColor: '#f9f5f5',
+        backgroundColor: '#f0e8e8',
         fontFamily: "'Microsoft YaHei', monospace"
       }
     }
@@ -156,12 +156,12 @@ export const styleTemplates = {
         color: '#4a5568',
         fontSize: '15px',
         borderColor: '#1a365d',
-        backgroundColor: '#f7fafc'
+        backgroundColor: '#e2eaf2'
       },
       code: {
         color: '#1a365d',
         fontSize: '14px',
-        backgroundColor: '#edf2f7',
+        backgroundColor: '#e2eaf2',
         fontFamily: "'PingFang SC', monospace"
       }
     }
@@ -190,13 +190,13 @@ export const styleTemplates = {
         color: '#4f46e5',
         fontSize: '15px',
         borderColor: '#818cf8',
-        backgroundColor: '#eef2ff',
+        backgroundColor: '#e4e7f5',
         borderLeft: '4px solid'
       },
       code: {
         color: '#4f46e5',
         fontSize: '14px',
-        backgroundColor: '#eef2ff',
+        backgroundColor: '#e4e7f5',
         fontFamily: "'Microsoft YaHei', monospace",
         borderRadius: '4px'
       }
@@ -222,12 +222,12 @@ export const styleTemplates = {
         color: '#a0aec0',
         fontSize: '15px',
         borderColor: '#2d3748',
-        backgroundColor: '#2d3748'
+        backgroundColor: '#3a4556'
       },
       code: {
         color: '#e2e8f0',
         fontSize: '14px',
-        backgroundColor: '#2d3748',
+        backgroundColor: '#3a4556',
         fontFamily: "'PingFang SC', monospace"
       }
     }
@@ -251,12 +251,12 @@ export const styleTemplates = {
         color: '#8b4513',
         fontSize: '16px',
         borderColor: '#d2691e',
-        backgroundColor: '#fff5e6'
+        backgroundColor: '#f5e8d7'
       },
       code: {
         color: '#8b4513',
         fontSize: '15px',
-        backgroundColor: '#fff5e6',
+        backgroundColor: '#f5e8d7',
         fontFamily: "'Microsoft YaHei', monospace"
       }
     }
@@ -280,12 +280,12 @@ export const styleTemplates = {
         color: '#666666',
         fontSize: '14px',
         borderColor: '#e5e5e5',
-        backgroundColor: '#fafafa'
+        backgroundColor: '#e8e8e8'
       },
       code: {
         color: '#1a1a1a',
         fontSize: '14px',
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#e8e8e8',
         fontFamily: "sans-serif"
       }
     }
@@ -309,12 +309,12 @@ export const styleTemplates = {
         color: '#666666',
         fontSize: '15px',
         borderColor: '#ff3366',
-        backgroundColor: '#fff5f7'
+        backgroundColor: '#f8e1e6'
       },
       code: {
         color: '#ff3366',
         fontSize: '14px',
-        backgroundColor: '#fff5f7',
+        backgroundColor: '#f8e1e6',
         fontFamily: "'Microsoft YaHei', monospace"
       }
     }
@@ -338,14 +338,14 @@ export const styleTemplates = {
         color: '#4a5568',
         fontSize: '15px',
         borderColor: '#2c5282',
-        backgroundColor: '#ebf8ff'
+        backgroundColor: '#dce7f3'
       },
       code: {
         color: '#2c5282',
         fontSize: '14px',
-        backgroundColor: '#ebf8ff',
+        backgroundColor: '#dce7f3',
         fontFamily: "'PingFang SC', monospace"
       }
     }
   }
-}; 
+};

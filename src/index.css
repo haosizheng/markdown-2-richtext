@@ -32,12 +32,6 @@ body {
   margin-bottom: 6px;
 }
 
-.preview-content code {
-  background-color: #f5f5f5;
-  padding: 2px 4px;
-  border-radius: 3px;
-}
-
 /* 预览区域的样式 */
 .preview-content {
   font-size: 16px;

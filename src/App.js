@@ -614,8 +614,8 @@ line-height: ${config.global.lineHeight} !important;  // 强制应用行高
         background-color: ${config.code.backgroundColor};
         font-size: ${config.code.fontSize};
         font-family: ${config.global.fontFamily};  // 使用全局字体设置
-        padding: 0.2em 0.4em;
-        border-radius: 3px;
+        padding: .1em .2em; /* 增加内边距使行内代码更明显 */
+        border-radius: 2px;
       }
 
       /* 代码块特殊处理 */
@@ -1302,8 +1302,8 @@ line-height: ${config.global.lineHeight} !important;  // 强制应用行高
 
   // 在组件加载时立即生成并应用 CSS
   useEffect(() => {
-    const initialCSS = generateCSS(styleConfig);
-    updateStyle(initialCSS);
+    // 应用第一个模板（default）的样式
+    handleTemplateChange('default');
   }, []);
 
   return (
@@ -1723,4 +1723,4 @@ line-height: ${config.global.lineHeight} !important;  // 强制应用行高
   );
 };
 
-export default App; 
+export default App;
