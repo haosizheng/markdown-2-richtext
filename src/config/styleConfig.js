@@ -51,6 +51,36 @@ export const defaultValues = {
 
 // 样式模板配置
 export const styleTemplates = {
+
+  cleanMinimal: {
+    nameKey: "templateCleanMinimal",
+    styles: {
+      global: {
+        fontFamily: "'Microsoft YaHei', -apple-system, sans-serif",
+        letterSpacing: "0.5px",
+        lineHeight: "1.75",
+        paragraphSpacing: "24px",
+        headingAlign: "center",
+        headingColor: "#000000",
+        headingSize: "medium"
+      },
+      paragraph: { color: '#333333', fontSize: '15px' },
+      bold: { color: '#000000' },
+      blockquote: {
+        color: '#555555',
+        fontSize: '15px',
+        borderColor: '#cccccc',
+        backgroundColor: '#f9f9f9'
+      },
+      code: {
+        color: '#333333',
+        fontSize: '14px',
+        backgroundColor: '#f5f5f5',
+        fontFamily: "'Microsoft YaHei', monospace"
+      }
+    }
+  },
+
   default: {
     nameKey: "templateDefault",
     styles: {
@@ -262,34 +292,7 @@ export const styleTemplates = {
     }
   },
 
-  cleanMinimal: {
-    nameKey: "templateCleanMinimal",
-    styles: {
-      global: {
-        fontFamily: "sans-serif",
-        letterSpacing: "0.2px",
-        lineHeight: "1.6",
-        paragraphSpacing: "18px",
-        headingAlign: "left",
-        headingColor: "#1a1a1a",
-        headingSize: "medium"
-      },
-      paragraph: { color: '#333333', fontSize: '15px' },
-      bold: { color: '#1a1a1a' },
-      blockquote: {
-        color: '#666666',
-        fontSize: '14px',
-        borderColor: '#e5e5e5',
-        backgroundColor: '#e8e8e8'
-      },
-      code: {
-        color: '#1a1a1a',
-        fontSize: '14px',
-        backgroundColor: '#e8e8e8',
-        fontFamily: "sans-serif"
-      }
-    }
-  },
+
 
   modernMedia: {
     nameKey: "templateModernMedia",

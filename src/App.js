@@ -1302,8 +1302,8 @@ line-height: ${config.global.lineHeight} !important;  // 强制应用行高
 
   // 在组件加载时立即生成并应用 CSS
   useEffect(() => {
-    // 应用第一个模板（default）的样式
-    handleTemplateChange('default');
+    // 应用清爽简约模板作为默认样式
+    handleTemplateChange('cleanMinimal');
   }, []);
 
   return (
